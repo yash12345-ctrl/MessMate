@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MessMate Pro | Ultimate Dining Dashboard</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class', // Enables toggle
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
+                    colors: {
+                        brand: {
+                            500: '#FF5E00', // Primary Orange
+                            600: '#EA580C',
+                        },
+                        dark: {
+                            bg: '#0F172A',
+                            card: '#1E293B',
+                            text: '#F1F5F9'
+                        }
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Hide Scrollbar */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Glassmorphism */
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.6);
+        }
+        .dark .glass {
+            background: rgba(15, 23, 42, 0.7);
+            border-bottom: 1px solid rgba(51, 65, 85, 0.6);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-dark-bg dark:text-dark-text transition-colors duration-300">
+
+    <nav class="fixed w-full z-50 glass transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div class="w-9 h-9 bg-brand-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-brand-500/30">
+                    <i class="fa-solid fa-utensils"></i>
+                </div>
+                <span class="font-bold text-lg tracking-tight">Mess<span class="text-brand-500">Mate</span> <span class="text-xs bg-slate-200 dark:bg-slate-700 px-1.5 py-0.5 rounded text-slate-500 dark:text-slate-300">PRO</span></span>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <button id="theme-toggle" class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-yellow-400 transition hover:scale-105">
+                    <i class="fa-solid fa-sun dark:hidden"></i>
+                    <i class="fa-solid fa-moon hidden dark:block"></i>
+                </button>
+                
+                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-brand-500 to-yellow-500 p-[2px] cursor-pointer">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Yash" class="rounded-full bg-white" alt="Profile">
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <header class="pt-24 pb-8 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                
+                <div class="bg-white dark:bg-dark-card p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-3 opacity-10"><i class="fa-solid fa-clock text-6xl"></i></div>
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Current Status</p>
+                    <h2 class="text-2xl font-bold text-brand-500 flex items-center gap-2">
+                        <span id="status-text">Loading...</span>
+                        <span class="relative flex h-3 w-3">
+                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-500 opacity-75"></span>
+                          <span class="relative inline-flex rounded-full h-3 w-3 bg-brand-500"></span>
+                        </span>
+                    </h2>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1" id="timer-display">Ends in 00:00:00</p>
+                </div>
+
+                <div class="bg-white dark:bg-dark-card p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">AI Crowd Monitor</p>
+                            <h2 class="text-xl font-bold text-slate-800 dark:text-white" id="crowd-status">Loading...</h2>
+                            <p class="text-xs text-slate-500 font-semibold mt-1 flex items-center gap-1">
+                                <i class="fa-solid fa-rss"></i> Live Estimate
+                            </p>
+                        </div>
+                        <div class="bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 p-2 rounded-lg text-xl">
+                            <i class="fa-solid fa-robot"></i>
+                        </div>
+                    </div>
+                    <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-1.5 mt-3 overflow-hidden">
+                        <div id="crowd-bar" class="bg-blue-500 h-1.5 rounded-full transition-all duration-700 ease-out" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-dark-card p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col justify-center gap-2">
+                    <button onclick="toggleVegMode()" id="veg-toggle-btn" class="w-full py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 font-semibold text-sm hover:bg-green-50 dark:hover:bg-green-900/20 hover:text-green-600 hover:border-green-200 transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-leaf"></i> Show Veg Only
+                    </button>
+                    <button onclick="shareMenu()" class="w-full py-2.5 rounded-xl bg-green-500 text-white font-semibold text-sm hover:bg-green-600 transition flex items-center justify-center gap-2 shadow-lg shadow-green-500/20">
+                        <i class="fa-brands fa-whatsapp text-lg"></i> Share on WhatsApp
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 pb-24">
+        <div class="sticky top-16 z-40 bg-slate-50/95 dark:bg-[#0F172A]/95 backdrop-blur py-2 mb-6">
+            <div class="flex overflow-x-auto gap-3 no-scrollbar pb-2" id="day-tabs">
+                </div>
+        </div>
+
+        <div id="menu-container" class="space-y-6">
+            </div>
+    </main>
+
+    <script>
+        // --- 1. CONFIGURATION & DATA ---
+        const MESS_TIMINGS = {
+            breakfast: { start: 7.5, end: 9.5, name: "Breakfast" }, // 7:30 - 9:30
+            lunch: { start: 12.5, end: 14.5, name: "Lunch" },      // 12:30 - 14:30
+            snacks: { start: 16.5, end: 17.5, name: "Snacks" },    // 16:30 - 17:30
+            dinner: { start: 19.5, end: 21.0, name: "Dinner" }     // 19:30 - 21:00
+        };
+
+        const menuData = [
+            { day: "Monday", veg: true, breakfast: "Sweet, Bread, Butter, Jam, Idly, Sambar, Spl Chutney, Poori, Aloo Dal Masala, Boiled Egg, Banana", lunch: "Chappathi, Jeera Pulao, Steamed Rice, Masala Sambar, Bagara Dal, Mix Veg Poriyal, Lemon Rasam, Pickle, Butter Milk", snacks: "Pav Bhaji, Tea / Coffee", dinner: "Punjabi Paratha, Rajma Makkan Wala, Dosa, Idly Podi, Special Chutney, Steamed Rice, Veg Salad. ***Chicken Gravy***" },
+            { day: "Tuesday", veg: true, breakfast: "Bread, Butter, Jam, Ghee Pongal, Vadai, Veg Kosthu, Coconut Chutney, Poha, Mint Chutney, Masala Omelet", lunch: "Sweet, Poori, Mattar Ghugni, Variety Rice, Steamed Rice, Sambar, Dal Lasooni, Gobi-65 / Bhindi Jaipuri, Butter Milk", snacks: "Boiled Peanut / Black Channa Sundal", dinner: "Chappathi, Mix Veg Kurma, Fried Rice/Noodles, Manchurian Dry, Steamed Rice, Rasam, Dal Fry, Veg Salad, Fruits. ***Chicken Gravy***" },
+            { day: "Wednesday", veg: false, breakfast: "Bread, Butter, Jam, Dosa, Idly Podi, Arachivitta Sambar, Chappathi, Aloo Rajma Masala, Banana", lunch: "Butter Roti, Aloo Palak, Peas Pulao, Dal Makhni, Kadai Veg, Steamed Rice, Drumstick Brinjal Sambar, Garlic Rasam, Butter Milk", snacks: "Veg Puff / Sweet Bun, Juice", dinner: "Chappathi, Steamed Rice, Dal Tadka, ***Chicken Masala*** / Panneer Butter Masala, Rasam, Pickle, Veg Salad. ***Chicken Gravy***" },
+            { day: "Thursday", veg: true, breakfast: "Bread, Butter, Jam, Idly, Sambar, Aloo Meal Maker Kasa, Veg Semiya Kichadi, Coconut Chutney, Boiled Egg", lunch: "Luchi, Kashmiri Dum Aloo, Onion Pulao, Steamed Rice, Mysore Dal Fry, Kadi Pakoda, Pepper Rasam, Poriyal, Butter Milk", snacks: "Pani Poori (or) Chunda Nasta", dinner: "Ghee Pulao, Chappathi, Muttar Panneer, Steamed Rice, Dal Tadka, Aloo Peanut Masala, Veg Salad, Ice Cream. ***Mutton Gravy***" },
+            { day: "Friday", veg: true, breakfast: "Bread, Butter, Jam, Podi Dosa, Idly Podi, Chilli Sambar, Chappathi, Muttar Masala, Boiled Egg, Banana", lunch: "Dry Jamun / Bread Halwa, Veg Briyani, Mix Raitha, Bisebelabath, Curd Rice, Steamed Rice, Aloo Gobi Adaraki", snacks: "Bonda / Vada, Chutney", dinner: "Chole Bhatura, Steamed Rice, Tomato Dal, Samba Rava Upma, Coconut Chutney, Rasam, Cabbage Poriyal, Veg Salad. ***Chicken Gravy***" },
+            { day: "Saturday", veg: true, breakfast: "Bread, Butter, Jam, Chappathi, Veg Kurma, Idiyappam, Coconut Chutney, Boiled Egg", lunch: "Poori, Dal Aloo Masala, Veg Pulao, Steamed Rice, Punjabi Dal Tadka, Bhindi Do Pyasa, Kara Kuzhambu, Jeera Rasam", snacks: "Cake (or) Brownie", dinner: "Sweet, Malabar Paratha, Meal Maker Curry, Mix Veg Sabji, Steamed Rice, Dal Makhni, Idly, Tiffen Sambar, Veg Salad. ***Fish Gravy***" },
+            { day: "Sunday", veg: false, breakfast: "Bread, Butter, Jam, Chole Poori, Veg Upma, Coconut Chutney", lunch: "Chappathi, ***Chicken (Pepper/Kadai)***, Panneer Butter Masala, Dal Dhadka, Mint Pulao, Steamed Rice, Garlic Rasam, Butter Milk", snacks: "Corn / Bajji, Chutney", dinner: "Variety Stuffing Paratha, Curd, Steamed Rice, Hara Moong Dal Tadka, Sambar, Poriyal, Ice Cream. ***Chicken Gravy***" }
+        ];
+
+        // State Variables
+        let currentDayIndex = new Date().getDay() === 0 ? 6 : new Date().getDay() - 1;
+        let isVegMode = false;
+        let favorites = JSON.parse(localStorage.getItem('messFavorites')) || [];
+
+        // --- 2. THEME LOGIC ---
+        const themeToggle = document.getElementById('theme-toggle');
+        const html = document.documentElement;
+        
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            html.classList.add('dark');
+        }
+
+        themeToggle.addEventListener('click', () => {
+            html.classList.toggle('dark');
+            localStorage.theme = html.classList.contains('dark') ? 'dark' : 'light';
+        });
+
+        // --- 3. RENDER FUNCTIONS ---
+        function renderTabs() {
+            const container = document.getElementById('day-tabs');
+            container.innerHTML = '';
+            
+            menuData.forEach((item, index) => {
+                const isActive = index === currentDayIndex;
+                const btn = document.createElement('button');
+                btn.className = `flex-shrink-0 px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-300 border relative ${
+                    isActive 
+                    ? 'bg-slate-900 dark:bg-brand-500 text-white border-transparent shadow-lg transform scale-105' 
+                    : 'bg-white dark:bg-dark-card text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-brand-500'
+                }`;
+                btn.innerHTML = `
+                    ${item.day.substring(0,3)}
+                    ${item.dinner.includes('***') ? '<span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full border border-white dark:border-dark-card"></span>' : ''}
+                `;
+                btn.onclick = () => {
+                    currentDayIndex = index;
+                    renderTabs();
+                    renderContent();
+                };
+                container.appendChild(btn);
+            });
+            container.children[currentDayIndex]?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
+
+        function renderContent() {
+            const container = document.getElementById('menu-container');
+            const data = menuData[currentDayIndex];
+            
+            const meals = [
+                { id: 'bf', title: 'Breakfast', icon: 'mug-hot', color: 'text-yellow-500', time: '7:30 - 9:30 AM', items: data.breakfast },
+                { id: 'ln', title: 'Lunch', icon: 'bowl-rice', color: 'text-orange-500', time: '12:30 - 2:30 PM', items: data.lunch },
+                { id: 'sn', title: 'Snacks', icon: 'cookie-bite', color: 'text-pink-500', time: '4:30 - 5:30 PM', items: data.snacks },
+                { id: 'dn', title: 'Dinner', icon: 'moon', color: 'text-indigo-500', time: '7:30 - 9:00 PM', items: data.dinner },
+            ];
+
+            container.innerHTML = meals.map(meal => {
+                let formattedItems = formatFoodText(meal.items);
+                if (isVegMode && (meal.items.includes('Chicken') || meal.items.includes('Fish'))) {
+                    formattedItems = `<span class="opacity-40 italic">Non-veg hidden</span> ` + formattedItems.replace(/Chicken|Fish|Mutton|Egg/gi, '🚫');
+                }
+
+                return `
+                <div class="bg-white dark:bg-dark-card p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 transition-all hover:shadow-md group">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center ${meal.color}">
+                                <i class="fa-solid fa-${meal.icon} text-lg"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg text-slate-800 dark:text-slate-100">${meal.title}</h3>
+                                <p class="text-xs text-slate-400 font-medium">${meal.time}</p>
+                            </div>
+                        </div>
+                        <button onclick="toggleHeart('${meal.id}')" class="text-slate-300 hover:text-red-500 transition">
+                            <i class="${favorites.includes(meal.id + currentDayIndex) ? 'fa-solid text-red-500' : 'fa-regular'} fa-heart text-xl"></i>
+                        </button>
+                    </div>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm leading-7">${formattedItems}</p>
+                </div>
+                `;
+            }).join('');
+        }
+
+        // --- 4. UTILITIES ---
+        function formatFoodText(text) {
+            return text
+                .replace(/\*\*\*(.*?)\*\*\*/g, '<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 mx-1 uppercase tracking-wide"><i class="fa-solid fa-fire mr-1"></i>$1</span>')
+                .replace(/(Chicken|Mutton|Fish)/gi, '<span class="font-bold text-red-500 dark:text-red-400">$1</span>')
+                .replace(/(Paneer|Panneer|Mushroom)/gi, '<span class="font-bold text-green-600 dark:text-green-400">$1</span>')
+                .replace(/(Ice Cream|Sweet|Gulab Jamun|Halwa|Cake)/gi, '<span class="font-bold text-pink-500 decoration-wavy underline decoration-pink-300">$1</span>');
+        }
+
+        function toggleVegMode() {
+            isVegMode = !isVegMode;
+            const btn = document.getElementById('veg-toggle-btn');
+            if(isVegMode) {
+                btn.classList.add('bg-green-50', 'text-green-600', 'border-green-200');
+                btn.innerHTML = '<i class="fa-solid fa-leaf"></i> Veg Mode ON';
+            } else {
+                btn.classList.remove('bg-green-50', 'text-green-600', 'border-green-200');
+                btn.innerHTML = '<i class="fa-solid fa-leaf"></i> Show Veg Only';
+            }
+            renderContent();
+        }
+
+        function toggleHeart(mealId) {
+            const key = mealId + currentDayIndex;
+            if (favorites.includes(key)) {
+                favorites = favorites.filter(k => k !== key);
+            } else {
+                favorites.push(key);
+            }
+            localStorage.setItem('messFavorites', JSON.stringify(favorites));
+            renderContent();
+        }
+
+        function shareMenu() {
+            const data = menuData[currentDayIndex];
+            const text = `🍽️ *Mess Menu for ${data.day}* 🍽️%0A%0A🥞 *Breakfast:* ${data.breakfast}%0A🍛 *Lunch:* ${data.lunch}%0A☕ *Snacks:* ${data.snacks}%0A🥘 *Dinner:* ${data.dinner}%0A%0A🚀 *Check full menu on MessMate*`;
+            window.open(`https://wa.me/?text=${text}`, '_blank');
+        }
+
+        // --- 5. UPDATED STATUS & CROWD LOGIC ---
+        function updateStatus() {
+            const now = new Date();
+            const hours = now.getHours() + now.getMinutes() / 60; 
+            
+            const statusText = document.getElementById('status-text');
+            const timerDisplay = document.getElementById('timer-display');
+            const crowdStatus = document.getElementById('crowd-status');
+            const crowdBar = document.getElementById('crowd-bar'); // Selected by ID now
+
+            let activeMeal = null;
+
+            if (hours >= MESS_TIMINGS.breakfast.start && hours < MESS_TIMINGS.breakfast.end) activeMeal = MESS_TIMINGS.breakfast;
+            else if (hours >= MESS_TIMINGS.lunch.start && hours < MESS_TIMINGS.lunch.end) activeMeal = MESS_TIMINGS.lunch;
+            else if (hours >= MESS_TIMINGS.snacks.start && hours < MESS_TIMINGS.snacks.end) activeMeal = MESS_TIMINGS.snacks;
+            else if (hours >= MESS_TIMINGS.dinner.start && hours < MESS_TIMINGS.dinner.end) activeMeal = MESS_TIMINGS.dinner;
+
+            if (activeMeal) {
+                statusText.innerText = `${activeMeal.name} Live`;
+                statusText.classList.replace('text-slate-500', 'text-brand-500');
+                
+                const endTime = new Date();
+                endTime.setHours(Math.floor(activeMeal.end), (activeMeal.end % 1) * 60, 0);
+                const diff = endTime - now;
+                const m = Math.floor((diff / 1000 / 60) % 60);
+                const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+                timerDisplay.innerText = `Closes in ${h}h ${m}m`;
+                
+                // --- FIXED CROWD SIMULATION ---
+                // Random traffic between 35% and 95%
+                const traffic = Math.floor(Math.random() * (95 - 35) + 35);
+                
+                crowdBar.style.width = `${traffic}%`;
+                
+                if (traffic > 80) {
+                    crowdStatus.innerText = "High Traffic";
+                    crowdStatus.className = "text-xl font-bold text-red-500";
+                    crowdBar.className = "bg-red-500 h-1.5 rounded-full transition-all duration-700 ease-out";
+                } else if (traffic > 55) {
+                    crowdStatus.innerText = "Moderate Traffic";
+                    crowdStatus.className = "text-xl font-bold text-orange-500";
+                    crowdBar.className = "bg-orange-500 h-1.5 rounded-full transition-all duration-700 ease-out";
+                } else {
+                    crowdStatus.innerText = "Low Traffic";
+                    crowdStatus.className = "text-xl font-bold text-green-500";
+                    crowdBar.className = "bg-green-500 h-1.5 rounded-full transition-all duration-700 ease-out";
+                }
+
+            } else {
+                statusText.innerText = "Mess Closed";
+                statusText.classList.replace('text-brand-500', 'text-slate-500');
+                
+                let nextOpenText = "Opens next for Breakfast";
+                if (hours < MESS_TIMINGS.lunch.start && hours > MESS_TIMINGS.breakfast.end) nextOpenText = "Opens next for Lunch";
+                else if (hours < MESS_TIMINGS.snacks.start && hours > MESS_TIMINGS.lunch.end) nextOpenText = "Opens next for Snacks";
+                else if (hours < MESS_TIMINGS.dinner.start && hours > MESS_TIMINGS.snacks.end) nextOpenText = "Opens next for Dinner";
+                
+                timerDisplay.innerText = nextOpenText;
+                
+                // Set Crowd to Empty
+                crowdStatus.innerText = "Empty";
+                crowdStatus.className = "text-xl font-bold text-slate-800 dark:text-white";
+                crowdBar.style.width = "0%";
+                crowdBar.className = "bg-blue-500 h-1.5 rounded-full transition-all duration-700 ease-out";
+            }
+        }
+
+        renderTabs();
+        renderContent();
+        setInterval(updateStatus, 60000); 
+        updateStatus(); 
+    </script>
+</body>
+</html>

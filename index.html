@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MessMate | Premium College Dining</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#FF5E00', /* Vivid Orange */
+                        secondary: '#1E293B', /* Slate 800 */
+                        accent: '#FBBF24', /* Amber */
+                        surface: '#F8FAFC', /* Off White */
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        /* Gradient Text Utility */
+        .text-gradient {
+            background: linear-gradient(135deg, #FF5E00 0%, #FF9000 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        /* Glassmorphism Class */
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-surface text-slate-800 antialiased overflow-x-hidden">
+
+    <nav class="fixed w-full z-50 transition-all duration-300 glass border-b border-white/20 top-0">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20 items-center">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white shadow-lg shadow-primary/30">
+                        <i class="fa-solid fa-utensils"></i>
+                    </div>
+                    <span class="font-bold text-xl tracking-tight text-slate-900">Mess<span class="text-primary">Mate</span></span>
+                </div>
+
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="campus-map.html" class="text-sm font-semibold text-slate-600 hover:text-primary transition">SRM MAP</a>
+                    <a href="menu.html" class="text-sm font-semibold text-slate-600 hover:text-primary transition">Weekly Menu</a>
+                    <a href="canteens.html" class="text-sm font-semibold text-slate-600 hover:text-primary transition">Canteen Map</a>
+                    <button class="bg-slate-900 text-white px-6 py-2.5 rounded-full text-sm font-semibold hover:bg-slate-800 transition shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                        Login
+                    </button>
+                </div>
+
+                <button id="mobile-btn" class="md:hidden text-slate-700 text-2xl">
+                    <i class="fa-solid fa-bars-staggered"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-slate-100 absolute w-full">
+            <div class="px-4 py-4 space-y-3">
+                <a href="#" class="block font-medium text-slate-600">Dashboard</a>
+                <a href="#menu" class="block font-medium text-slate-600">Weekly Menu</a>
+                <a href="#stats" class="block font-medium text-slate-600">Nutrition</a>
+                <a href="#" class="block font-medium text-primary">Login</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-full overflow-hidden -z-10">
+            <div class="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-orange-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-float"></div>
+            <div class="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-yellow-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-float" style="animation-delay: 2s"></div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid lg:grid-cols-2 gap-16 items-center">
+                
+                <div class="text-center lg:text-left space-y-8">
+                    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-slate-200 shadow-sm">
+                        <span class="relative flex h-3 w-3">
+                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                          <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                        </span>
+                        <span class="text-xs font-bold text-slate-600 uppercase tracking-wider" id="hero-status">Cafeteria is Live</span>
+                    </div>
+
+                    <h1 class="text-5xl lg:text-7xl font-extrabold text-slate-900 leading-[1.1]">
+                        Fuel Your <br>
+                        <span class="text-gradient">Campus Life.</span>
+                    </h1>
+                    
+                    <p class="text-lg text-slate-500 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+                        Experience smart dining. Check real-time menus, track calories, and give feedback instantly from your device.
+                    </p>
+                    
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                        <a href="now.html" class="px-8 py-4 rounded-full bg-primary text-white font-bold hover:bg-orange-600 transition shadow-xl shadow-orange-500/20 flex items-center justify-center gap-2 group">
+                            View Today's Menu 
+                            <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                        </a>
+                        <a href="menu.html" class="px-8 py-4 rounded-full bg-white text-slate-700 font-bold border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition shadow-sm">
+                            <i class="fa-regular fa-calendar-check mr-2"></i> Monthly Plan
+                        </a>
+                    </div>
+
+                    <div class="pt-8 flex items-center justify-center lg:justify-start gap-6 border-t border-slate-200/60">
+                        <div class="text-left">
+                            <p class="text-2xl font-bold text-slate-900">2.5k+</p>
+                            <p class="text-xs text-slate-500 font-medium uppercase">Students Served</p>
+                        </div>
+                        <div class="w-px h-10 bg-slate-200"></div>
+                        <div class="text-left">
+                            <p class="text-2xl font-bold text-slate-900">4.8/5</p>
+                            <p class="text-xs text-slate-500 font-medium uppercase">Food Quality</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="relative lg:h-[600px] flex items-center justify-center">
+                    <div class="relative z-10 w-full max-w-md">
+                        <div class="bg-white p-4 rounded-3xl shadow-2xl rotate-3 hover:rotate-0 transition duration-500">
+                            <img src="https://images.unsplash.com/photo-1543353071-873f17a7a088?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Delicious Food" class="rounded-2xl w-full h-64 object-cover mb-4">
+                            <div class="flex justify-between items-end px-2">
+                                <div>
+                                    <h3 class="font-bold text-xl text-slate-900">Premium Thali</h3>
+                                    <div class="flex text-yellow-400 text-sm mt-1">
+                                        <i class="fa-solid fa-star"></i>
+                                        <i class="fa-solid fa-star"></i>
+                                        <i class="fa-solid fa-star"></i>
+                                        <i class="fa-solid fa-star"></i>
+                                        <i class="fa-solid fa-star-half-stroke"></i>
+                                        <span class="text-slate-400 ml-2 text-xs font-medium">(240 reviews)</span>
+                                    </div>
+                                </div>
+                                <div class="bg-green-100 text-green-700 px-3 py-1 rounded-lg text-xs font-bold">
+                                    <i class="fa-solid fa-leaf mr-1"></i> Veg
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="absolute -bottom-10 -left-10 glass p-4 rounded-2xl shadow-xl animate-float" style="animation-delay: 1s;">
+                            <div class="flex items-center gap-3">
+                                <div class="bg-orange-100 p-2 rounded-lg text-orange-600">
+                                    <i class="fa-solid fa-fire"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-slate-500 font-bold uppercase">Calories</p>
+                                    <p class="text-lg font-bold text-slate-800">450 Kcal</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="absolute -top-10 -right-5 glass p-4 rounded-2xl shadow-xl animate-float">
+                            <div class="flex items-center gap-3">
+                                <div class="bg-green-100 p-2 rounded-lg text-green-600">
+                                    <i class="fa-regular fa-clock"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-slate-500 font-bold uppercase">Ready in</p>
+                                    <p class="text-lg font-bold text-slate-800">10 mins</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="menu" class="py-20 bg-white relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl lg:text-4xl font-bold text-slate-900 mb-4">Today's <span class="text-primary">Specials</span></h2>
+                <div class="flex justify-center items-center gap-2 text-slate-500">
+                    <i class="fa-solid fa-calendar-day"></i>
+                    <span id="current-date" class="font-medium">Loading Date...</span>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap justify-center gap-4 mb-12">
+                <button onclick="switchTab('breakfast')" id="btn-breakfast" class="tab-btn px-8 py-3 rounded-full text-sm font-bold border border-slate-200 text-slate-600 hover:bg-slate-50 transition active-tab">
+                    ☕ Breakfast
+                </button>
+                <button onclick="switchTab('lunch')" id="btn-lunch" class="tab-btn px-8 py-3 rounded-full text-sm font-bold border border-slate-200 text-slate-600 hover:bg-slate-50 transition">
+                    🍛 Lunch
+                </button>
+                <button onclick="switchTab('dinner')" id="btn-dinner" class="tab-btn px-8 py-3 rounded-full text-sm font-bold border border-slate-200 text-slate-600 hover:bg-slate-50 transition">
+                    🌙 Dinner
+                </button>
+            </div>
+
+            <div class="max-w-4xl mx-auto">
+                <div id="content-breakfast" class="tab-content grid md:grid-cols-2 gap-8 items-center animate-fade-in">
+                    <img src="https://images.unsplash.com/photo-1533089862017-54148d31d167?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="rounded-3xl shadow-lg h-64 w-full object-cover">
+                    <div class="bg-slate-50 p-8 rounded-3xl border border-slate-100">
+                        <div class="flex justify-between items-start mb-6">
+                            <div>
+                                <h3 class="text-2xl font-bold text-slate-900">Morning Power Meal</h3>
+                                <p class="text-slate-500 text-sm">7:30 AM - 9:30 AM</p>
+                            </div>
+                            <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">Healthy</span>
+                        </div>
+                        <ul class="space-y-4">
+                            <li class="flex items-center gap-3 text-slate-700">
+                                <div class="w-6 h-6 rounded-full bg-orange-100 flex items-center justify-center text-primary text-xs"><i class="fa-solid fa-check"></i></div>
+                                <span>Idli / Dosa with Sambar</span>
+                            </li>
+                            <li class="flex items-center gap-3 text-slate-700">
+                                <div class="w-6 h-6 rounded-full bg-orange-100 flex items-center justify-center text-primary text-xs"><i class="fa-solid fa-check"></i></div>
+                                <span>Fresh Fruit Bowl</span>
+                            </li>
+                            <li class="flex items-center gap-3 text-slate-700">
+                                <div class="w-6 h-6 rounded-full bg-orange-100 flex items-center justify-center text-primary text-xs"><i class="fa-solid fa-check"></i></div>
+                                <span>Hot Coffee / Tea</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div id="content-lunch" class="tab-content hidden grid md:grid-cols-2 gap-8 items-center animate-fade-in">
+                    <img src="https://images.unsplash.com/photo-1565557623262-b51c2513a641?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="rounded-3xl shadow-lg h-64 w-full object-cover">
+                    <div class="bg-slate-50 p-8 rounded-3xl border border-slate-100">
+                        <div class="flex justify-between items-start mb-6">
+                            <div>
+                                <h3 class="text-2xl font-bold text-slate-900">Full Course Lunch</h3>
+                                <p class="text-slate-500 text-sm">12:30 PM - 2:30 PM</p>
+                            </div>
+                            <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold">Spicy</span>
+                        </div>
+                        <ul class="space-y-4">
+                            <li class="flex items-center gap-3 text-slate-700">
+                                <div class="w-6 h-6 rounded-full bg-orange-100 flex items-center justify-center text-primary text-xs"><i class="fa-solid fa-check"></i></div>
+                                <span>Paneer Butter Masala</span>
+                            </li>
+                            <li class="flex items-center gap-3 text-slate-700">
+                                <div class="w-6 h-6 rounded-full bg-orange-100 flex items-center justify-center text-primary text-xs"><i class="fa-solid fa-check"></i></div>
+                                <span>Dal Tadka & Jeera Rice</span>
+                            </li>
+                            <li class="flex items-center gap-3 text-slate-700">
+                                <div class="w-6 h-6 rounded-full bg-orange-100 flex items-center justify-center text-primary text-xs"><i class="fa-solid fa-check"></i></div>
+                                <span>Buttermilk</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div id="content-dinner" class="tab-content hidden grid md:grid-cols-2 gap-8 items-center animate-fade-in">
+                    <img src="https://images.unsplash.com/photo-1585937421612-70a008356f36?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="rounded-3xl shadow-lg h-64 w-full object-cover">
+                    <div class="bg-slate-50 p-8 rounded-3xl border border-slate-100">
+                        <div class="flex justify-between items-start mb-6">
+                            <div>
+                                <h3 class="text-2xl font-bold text-slate-900">Light Dinner</h3>
+                                <p class="text-slate-500 text-sm">7:30 PM - 9:00 PM</p>
+                            </div>
+                            <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold">Light</span>
+                        </div>
+                        <ul class="space-y-4">
+                            <li class="flex items-center gap-3 text-slate-700">
+                                <div class="w-6 h-6 rounded-full bg-orange-100 flex items-center justify-center text-primary text-xs"><i class="fa-solid fa-check"></i></div>
+                                <span>Roti & Mix Veg</span>
+                            </li>
+                            <li class="flex items-center gap-3 text-slate-700">
+                                <div class="w-6 h-6 rounded-full bg-orange-100 flex items-center justify-center text-primary text-xs"><i class="fa-solid fa-check"></i></div>
+                                <span>Egg Curry / Mushroom</span>
+                            </li>
+                            <li class="flex items-center gap-3 text-slate-700">
+                                <div class="w-6 h-6 rounded-full bg-orange-100 flex items-center justify-center text-primary text-xs"><i class="fa-solid fa-check"></i></div>
+                                <span>Sweet Dish (Kheer)</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-20">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-slate-900 rounded-[2.5rem] p-12 text-center relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                <div class="absolute bottom-0 left-0 w-64 h-64 bg-primary opacity-20 rounded-full translate-y-1/2 -translate-x-1/2 blur-3xl"></div>
+                
+                <div class="relative z-10">
+                    <h2 class="text-3xl lg:text-4xl font-bold text-white mb-6">Have a suggestion for Sunday Feast?</h2>
+                    <p class="text-slate-400 mb-8 max-w-2xl mx-auto">We value your taste buds. Submit your menu requests for the upcoming week or rate yesterday's meal.</p>
+                    <button class="bg-primary text-white px-8 py-4 rounded-full font-bold hover:bg-orange-600 transition shadow-lg shadow-primary/40">
+                        Submit Feedback
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-white border-t border-slate-100 pt-16 pb-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-4 gap-8 mb-12">
+                <div class="col-span-1 md:col-span-2">
+                    <span class="font-bold text-xl tracking-tight text-slate-900">Mess<span class="text-primary">Mate</span></span>
+                    <p class="text-slate-500 mt-4 text-sm max-w-xs">
+                        Digitalizing the college dining experience with smart menus, nutrition tracking, and student feedback.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-slate-900 mb-4">Quick Links</h4>
+                    <ul class="space-y-2 text-sm text-slate-500">
+                        <li><a href="#" class="hover:text-primary">Weekly Menu</a></li>
+                        <li><a href="#" class="hover:text-primary">Nutrition Info</a></li>
+                        <li><a href="#" class="hover:text-primary">Mess Rules</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-slate-900 mb-4">Contact</h4>
+                    <ul class="space-y-2 text-sm text-slate-500">
+                        <li>warden@college.edu</li>
+                        <li>+91 98765 43210</li>
+                        <li>Mess Hall B, Campus</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-slate-100 pt-8 text-center text-sm text-slate-400">
+                &copy; 2024 MessMate Systems. Design by Yash Tomar.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 1. Set Date
+        const dateEl = document.getElementById('current-date');
+        const options = { weekday: 'long', month: 'long', day: 'numeric' };
+        dateEl.textContent = new Date().toLocaleDateString('en-US', options);
+
+        // 2. Mobile Menu Toggle
+        const btn = document.getElementById('mobile-btn');
+        const menu = document.getElementById('mobile-menu');
+        btn.addEventListener('click', () => {
+            menu.classList.toggle('hidden');
+        });
+
+        // 3. Tab Switching Logic
+        function switchTab(tabName) {
+            // Hide all contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            // Reset all buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-slate-900', 'text-white', 'shadow-lg');
+                btn.classList.add('text-slate-600', 'border-slate-200');
+            });
+
+            // Show selected content
+            document.getElementById('content-' + tabName).classList.remove('hidden');
+            
+            // Highlight selected button
+            const activeBtn = document.getElementById('btn-' + tabName);
+            activeBtn.classList.remove('text-slate-600', 'border-slate-200');
+            activeBtn.classList.add('bg-slate-900', 'text-white', 'shadow-lg', 'border-transparent');
+        }
+
+        // Initialize with correct meal based on time of day
+        const hour = new Date().getHours();
+        if (hour < 11) switchTab('breakfast');
+        else if (hour < 16) switchTab('lunch');
+        else switchTab('dinner');
+
+        // 4. Update Status Badge Logic
+        const statusText = document.getElementById('hero-status');
+        if (hour >= 7 && hour < 10) statusText.textContent = "Breakfast Live Now";
+        else if (hour >= 12 && hour < 15) statusText.textContent = "Lunch Live Now";
+        else if (hour >= 19 && hour < 22) statusText.textContent = "Dinner Live Now";
+        else statusText.textContent = "Mess Closed";
+
+    </script>
+</body>
+</html>

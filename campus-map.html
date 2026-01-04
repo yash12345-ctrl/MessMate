@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SRM Navigator | MessMate</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
+                    colors: {
+                        brand: { 500: '#0054a6', 600: '#004282' },
+                        dark: { bg: '#0B1120', card: '#1E293B' }
+                    },
+                    animation: {
+                        'pulse-ring': 'pulseRing 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite',
+                        'bounce-slow': 'bounce 2s infinite',
+                    },
+                    keyframes: {
+                        pulseRing: {
+                            '0%': { transform: 'scale(0.8)', opacity: '0.8' },
+                            '100%': { transform: 'scale(2.5)', opacity: '0' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Prevent scrolling on mobile to keep app-like feel */
+        body { margin: 0; padding: 0; overflow: hidden; height: 100vh; width: 100vw; }
+        
+        #map { height: 100%; width: 100%; z-index: 1; background: #e5e7eb; }
+
+        /* Hide the default bulky white instruction box from Routing Machine */
+        .leaflet-routing-container { display: none !important; }
+
+        /* Dark Mode Map Adjustment */
+        .dark #map .leaflet-layer,
+        .dark #map .leaflet-control-attribution {
+            filter: invert(100%) hue-rotate(180deg) brightness(90%) contrast(90%) saturate(150%);
+        }
+        
+        /* Sidebar Scroll */
+        .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+        .sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
+        .sidebar-scroll::-webkit-scrollbar-thumb { background: rgba(100,116,139,0.5); border-radius: 4px; }
+
+        .leaflet-control-zoom { display: none; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-dark-bg dark:text-white transition-colors duration-500 relative">
+
+    <div class="absolute top-0 left-0 w-full z-[1000] p-4 pointer-events-none flex justify-between items-start">
+        <a href="index.html" class="pointer-events-auto flex items-center gap-3 bg-white/90 dark:bg-dark-card/90 backdrop-blur-md px-3 py-2 md:px-4 md:py-2.5 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 hover:scale-105 transition-transform">
+            <div class="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center text-white shadow-inner shrink-0">
+                <i class="fa-solid fa-location-arrow"></i>
+            </div>
+            <div>
+                <h1 class="text-sm font-bold leading-none">SRM Navigator</h1>
+                <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wide">Live Routing</p>
+            </div>
+        </a>
+
+        <div class="pointer-events-auto flex flex-col gap-2 mt-16 sm:mt-0">
+            <button onclick="toggleTheme()" class="w-10 h-10 bg-white/90 dark:bg-dark-card/90 backdrop-blur-md rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-yellow-400 hover:scale-110 transition active:scale-95">
+                <i class="fa-solid fa-sun dark:hidden"></i>
+                <i class="fa-solid fa-moon hidden dark:block"></i>
+            </button>
+            <button onclick="locateUser(true)" class="w-10 h-10 bg-blue-600 text-white backdrop-blur-md rounded-xl shadow-lg border border-blue-700 flex items-center justify-center hover:bg-blue-500 hover:scale-110 transition animate-bounce-slow active:scale-95" title="My Location">
+                <i class="fa-solid fa-crosshairs"></i>
+            </button>
+            <button onclick="toggleSidebar()" class="w-10 h-10 bg-white/90 dark:bg-dark-card/90 backdrop-blur-md rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 flex items-center justify-center text-brand-600 hover:scale-110 transition md:hidden active:scale-95">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+    </div>
+
+    <div id="sidebar" class="absolute top-20 left-4 bottom-4 w-[calc(100%-2rem)] md:w-80 max-w-sm bg-white/95 dark:bg-dark-card/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 z-[1000] flex flex-col transition-transform duration-300 transform -translate-x-[120%] md:translate-x-0 pointer-events-auto overflow-hidden">
+        <div class="p-4 md:p-5 border-b border-slate-100 dark:border-slate-700 bg-gradient-to-r from-transparent via-slate-50/50 to-transparent dark:via-slate-800/30">
+            <div class="flex justify-between items-center">
+                <h2 class="text-lg font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-route text-brand-600"></i> Go To...
+                </h2>
+                <button onclick="toggleSidebar()" class="md:hidden text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            
+            <div class="mt-4 relative group">
+                <input type="text" placeholder="Search destination..." id="search-input"
+                    class="w-full bg-white dark:bg-slate-900 border-none rounded-lg py-2.5 pl-10 pr-3 text-sm focus:ring-2 focus:ring-brand-500 shadow-sm transition-all">
+                <i class="fa-solid fa-search absolute left-3 top-3 text-slate-400 text-xs"></i>
+            </div>
+        </div>
+        
+        <div class="flex-1 overflow-y-auto sidebar-scroll p-2 md:p-3 space-y-2" id="location-list">
+            </div>
+
+        <div class="p-3 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 rounded-b-3xl">
+            <div id="status-msg" class="text-center text-xs font-bold text-slate-400 mb-2 truncate px-2">Select a location to navigate</div>
+            <button onclick="resetMap()" class="w-full py-2.5 bg-slate-200 dark:bg-slate-700 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-brand-600 hover:text-white transition-colors shadow-md active:scale-95">
+                Clear Route
+            </button>
+        </div>
+    </div>
+
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+
+    <script>
+        // --- DATA ---
+        const SRM_CENTER = [12.8230, 80.0430];
+        
+        const locations = [
+            { id: 1, name: "Java Green", type: "Food Court", lat: 12.8236, lng: 80.0445, icon: "fa-mug-hot", color: "bg-emerald-500" },
+            { id: 2, name: "Tech Park", type: "Academic", lat: 12.8248, lng: 80.0452, icon: "fa-laptop-code", color: "bg-blue-600" },
+            { id: 3, name: "Main Arch", type: "Entry Gate", lat: 12.8260, lng: 80.0398, icon: "fa-torii-gate", color: "bg-purple-600" },
+            { id: 4, name: "University Building", type: "Admin", lat: 12.8230, lng: 80.0420, icon: "fa-building-columns", color: "bg-amber-500" },
+            { id: 5, name: "Medical College", type: "Medical", lat: 12.8210, lng: 80.0380, icon: "fa-stethoscope", color: "bg-rose-500" },
+            { id: 6, name: "Dental College", type: "Medical", lat: 12.8195, lng: 80.0375, icon: "fa-tooth", color: "bg-teal-500" },
+            { id: 7, name: "SRM Hospital", type: "Medical", lat: 12.8215, lng: 80.0390, icon: "fa-hospital", color: "bg-red-600" },
+            { id: 8, name: "Royal Café", type: "Restaurant", lat: 12.8240, lng: 80.0460, icon: "fa-utensils", color: "bg-cyan-500" },
+            { id: 9, name: "Girls Hostel", type: "Residence", lat: 12.8200, lng: 80.0480, icon: "fa-venus", color: "bg-pink-500" },
+            { id: 10, name: "Nelson Hostel", type: "Residence", lat: 12.8180, lng: 80.0440, icon: "fa-mars", color: "bg-indigo-500" }
+        ];
+
+        // --- MAP STATE ---
+        const map = L.map('map', { zoomControl: false, attributionControl: false }).setView(SRM_CENTER, 15);
+        
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            maxZoom: 20
+        }).addTo(map);
+
+        let userLocation = null;
+        let userMarker = null;
+        let routeControl = null;
+        const markers = {};
+
+        // --- INIT FUNCTIONS ---
+        function initMap() {
+            // Render Pins
+            locations.forEach(loc => {
+                const icon = L.divIcon({
+                    className: 'bg-transparent',
+                    html: `
+                        <div class="relative w-10 h-10 flex items-center justify-center group">
+                            <div class="w-8 h-8 ${loc.color} rounded-full flex items-center justify-center text-white shadow-lg border-2 border-white relative z-10 transition-transform group-hover:scale-125">
+                                <i class="fa-solid ${loc.icon} text-xs"></i>
+                            </div>
+                            <div class="absolute inset-0 -z-10 rounded-full ${loc.color} animate-pulse-ring opacity-50"></div>
+                        </div>`,
+                    iconSize: [40, 40],
+                    iconAnchor: [20, 20]
+                });
+
+                const marker = L.marker([loc.lat, loc.lng], { icon: icon }).addTo(map);
+                marker.bindPopup(`<b class="font-sans">${loc.name}</b>`, { closeButton: false });
+                marker.on('click', () => handleDestinationSelect(loc));
+                markers[loc.id] = marker;
+            });
+
+            // Initial Fly To
+            setTimeout(() => map.flyTo(SRM_CENTER, 16), 1000);
+        }
+
+        function renderSidebar(filter = '') {
+            const list = document.getElementById('location-list');
+            list.innerHTML = '';
+            const filtered = locations.filter(l => l.name.toLowerCase().includes(filter.toLowerCase()));
+
+            filtered.forEach(loc => {
+                const item = document.createElement('div');
+                item.className = "flex items-center gap-3 p-3 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition-colors group";
+                item.onclick = () => handleDestinationSelect(loc);
+                item.innerHTML = `
+                    <div class="w-8 h-8 rounded-lg ${loc.color} bg-opacity-20 flex items-center justify-center text-${loc.color.replace('bg-', '')} group-hover:scale-110 transition-transform">
+                        <i class="fa-solid ${loc.icon} text-xs"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-bold text-slate-700 dark:text-slate-200">${loc.name}</p>
+                        <p class="text-[10px] text-slate-400 font-medium uppercase text-brand-600 dark:text-brand-400 group-hover:underline">Get Directions</p>
+                    </div>`;
+                list.appendChild(item);
+            });
+        }
+
+        // --- CORE NAVIGATION LOGIC ---
+
+        // 1. Handle User Click (Pin or Sidebar)
+        function handleDestinationSelect(loc) {
+            markers[loc.id].openPopup();
+            
+            if (!userLocation) {
+                // If we don't know where the user is, ask them first
+                document.getElementById('status-msg').innerHTML = "<span class='text-orange-500 animate-pulse'>Locating you first...</span>";
+                locateUser(false, () => calculateRoute(loc.lat, loc.lng));
+            } else {
+                // We know where user is, just go
+                calculateRoute(loc.lat, loc.lng);
+            }
+            
+            // Close sidebar on mobile
+            if(window.innerWidth < 768) document.getElementById('sidebar').classList.add('-translate-x-[120%]');
+        }
+
+        // 2. Get Geolocation
+        function locateUser(centerOnUser = true, callback = null) {
+            if (!navigator.geolocation) {
+                alert("Geolocation not supported");
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition((pos) => {
+                const lat = pos.coords.latitude;
+                const lng = pos.coords.longitude;
+                userLocation = L.latLng(lat, lng);
+
+                // Update User Marker
+                if (userMarker) map.removeLayer(userMarker);
+                userMarker = L.marker([lat, lng], {
+                    icon: L.divIcon({
+                        className: 'bg-transparent',
+                        html: '<div class="w-4 h-4 bg-blue-600 rounded-full border-2 border-white shadow-xl animate-pulse"></div>'
+                    })
+                }).addTo(map).bindPopup("<b>You are here</b>");
+
+                if (centerOnUser) {
+                    map.flyTo([lat, lng], 17);
+                    userMarker.openPopup();
+                }
+
+                if (callback) callback();
+
+            }, () => {
+                document.getElementById('status-msg').innerHTML = "<span class='text-red-500'>Location access denied</span>";
+                alert("Please allow location access to use navigation.");
+            });
+        }
+
+        // 3. Draw Route (The "Google Maps" Part)
+        function calculateRoute(destLat, destLng) {
+            if (!userLocation) return;
+
+            document.getElementById('status-msg').innerHTML = "<span class='text-blue-500'>Calculating fastest route...</span>";
+
+            // Remove previous route
+            if (routeControl) {
+                map.removeControl(routeControl);
+            }
+
+            // Create new route
+            routeControl = L.Routing.control({
+                waypoints: [
+                    userLocation,
+                    L.latLng(destLat, destLng)
+                ],
+                lineOptions: {
+                    styles: [{ color: '#0054a6', opacity: 0.8, weight: 6 }]
+                },
+                createMarker: function() { return null; }, // Don't create default A/B markers, we have our own
+                addWaypoints: false,
+                draggableWaypoints: false,
+                fitSelectedRoutes: true,
+                show: false // Hide text instructions
+            }).addTo(map);
+
+            routeControl.on('routesfound', function(e) {
+                const routes = e.routes;
+                const summary = routes[0].summary;
+                const dist = (summary.totalDistance / 1000).toFixed(2);
+                const time = Math.round(summary.totalTime / 60);
+                
+                document.getElementById('status-msg').innerHTML = 
+                    `<span class="text-green-600 font-bold">${dist} km</span> • <span class="text-slate-600 dark:text-slate-300">${time} min drive</span>`;
+            });
+        }
+
+        function resetMap() {
+            if (routeControl) map.removeControl(routeControl);
+            routeControl = null;
+            document.getElementById('status-msg').innerText = "Route cleared";
+            map.flyTo(SRM_CENTER, 16);
+            map.closePopup();
+        }
+
+        function toggleTheme() { document.documentElement.classList.toggle('dark'); }
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('-translate-x-[120%]'); }
+        document.getElementById('search-input').addEventListener('input', (e) => renderSidebar(e.target.value));
+
+        // Start
+        initMap();
+        renderSidebar();
+
+    </script>
+</body>
+</html>

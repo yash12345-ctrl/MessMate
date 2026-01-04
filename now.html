@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MessMate | Live Focus</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
+                    colors: {
+                        brand: { 500: '#FF5E00', 600: '#EA580C' },
+                        dark: { bg: '#0B1120', card: '#161F32', text: '#F8FAFC' }
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'fade-in-up': 'fadeInUp 0.8s ease-out forwards',
+                        'shimmer': 'shimmer 2s linear infinite',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        shimmer: {
+                            '0%': { backgroundPosition: '-1000px 0' },
+                            '100%': { backgroundPosition: '1000px 0' },
+                        }
+                    },
+                    boxShadow: {
+                        'glow': '0 0 20px rgba(255, 94, 0, 0.3)',
+                        'card': '0 10px 30px -5px rgba(0, 0, 0, 0.05)',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        .text-gradient {
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-image: linear-gradient(to right, #1e293b, #475569);
+        }
+        .dark .text-gradient {
+            background-image: linear-gradient(to right, #f1f5f9, #94a3b8);
+        }
+        .bg-pattern {
+            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+            background-size: 24px 24px;
+            opacity: 0.3;
+        }
+        .dark .bg-pattern {
+            background-image: radial-gradient(#334155 1px, transparent 1px);
+            opacity: 0.1;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-dark-bg dark:text-dark-text transition-colors duration-500 min-h-screen flex flex-col overflow-x-hidden selection:bg-brand-500 selection:text-white">
+
+    <div class="fixed inset-0 z-0 pointer-events-none">
+        <div class="absolute top-0 right-0 w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-brand-500/10 dark:bg-brand-500/5 rounded-full blur-[80px] md:blur-[100px] -translate-y-1/2 translate-x-1/2"></div>
+        <div class="absolute bottom-0 left-0 w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-blue-500/10 dark:bg-blue-500/5 rounded-full blur-[80px] md:blur-[100px] translate-y-1/2 -translate-x-1/2"></div>
+        <div class="absolute inset-0 bg-pattern z-0"></div>
+    </div>
+
+    <nav class="fixed w-full z-50 bg-white/80 dark:bg-dark-card/80 backdrop-blur-xl border-b border-white/20 dark:border-slate-800/50 transition-all duration-300">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+            
+            <div class="flex items-center gap-3 relative z-10">
+                <div class="w-10 h-10 bg-brand-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-brand-500/30 transform hover:rotate-12 transition-transform duration-300">
+                    <i class="fa-solid fa-utensils text-sm"></i>
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-bold text-xl tracking-tight text-slate-900 dark:text-white leading-none">Mess<span class="text-brand-500">Mate</span></span>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-tight mt-0.5">Live Focus Mode</span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3 md:gap-4 relative z-10">
+                <a href="index.html" class="group flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-slate-100/50 dark:bg-white/5 border border-slate-200 dark:border-white/10 hover:bg-slate-200 dark:hover:bg-white/10 transition-all active:scale-95">
+                    <i class="fa-solid fa-arrow-left text-slate-500 dark:text-slate-400 text-xs"></i>
+                    <span class="hidden sm:inline text-xs font-bold text-slate-600 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white">Dashboard</span>
+                </a>
+
+                <button id="theme-toggle" class="w-9 h-9 md:w-10 md:h-10 rounded-full bg-slate-100/50 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center text-slate-600 dark:text-yellow-400 transition-all hover:scale-110 active:scale-95 shadow-sm">
+                    <i class="fa-solid fa-sun dark:hidden text-sm"></i>
+                    <i class="fa-solid fa-moon hidden dark:block text-sm"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow flex items-center justify-center pt-24 md:pt-28 pb-8 md:pb-12 px-4 sm:px-6 relative z-10">
+        <div class="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+            
+            <div class="lg:col-span-2 space-y-6 animate-fade-in-up">
+                
+                <div class="bg-white/60 dark:bg-dark-card/60 backdrop-blur-md p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] shadow-card border border-white/40 dark:border-white/5 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-24 h-24 md:w-32 md:h-32 bg-gradient-to-br from-brand-500/20 to-transparent rounded-full blur-2xl -mr-8 -mt-8 pointer-events-none"></div>
+
+                    <div class="relative z-10">
+                        <div class="flex flex-wrap justify-between items-center gap-3 mb-6">
+                            <div class="flex items-center gap-3">
+                                <span id="status-container" class="px-3 py-1.5 rounded-full bg-green-500/10 text-green-700 dark:text-green-400 text-[10px] md:text-[11px] font-bold uppercase tracking-widest flex items-center gap-2 border border-green-500/20">
+                                    <span class="relative flex h-2 w-2">
+                                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
+                                      <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                                    </span>
+                                    <span id="status-badge">Live Now</span>
+                                </span>
+                                <span class="text-slate-400 text-xs md:text-sm font-semibold tracking-wide" id="date-display">Loading...</span>
+                            </div>
+                            <h2 class="text-xs md:text-sm font-bold text-brand-600 dark:text-brand-500 uppercase tracking-widest opacity-80" id="greeting-text">Hello</h2>
+                        </div>
+                        
+                        <div class="flex items-baseline gap-2 md:gap-4 mb-6 md:mb-8">
+                            <h1 class="text-6xl sm:text-7xl md:text-8xl font-bold text-gradient tracking-tighter" id="clock-display">--:--</h1>
+                            <span class="text-xl sm:text-2xl md:text-3xl font-medium text-slate-400 dark:text-slate-600" id="ampm-display">AM</span>
+                        </div>
+                        
+                        <div class="relative w-full">
+                            <div class="flex justify-between text-[10px] md:text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">
+                                <span id="start-time-label">--:--</span>
+                                <span>Meal Progress</span>
+                                <span id="end-time-label">--:--</span>
+                            </div>
+                            <div class="relative w-full h-3 md:h-4 bg-slate-200/50 dark:bg-black/20 rounded-full overflow-hidden shadow-inner border border-black/5 dark:border-white/5">
+                                <div id="time-progress" class="absolute top-0 left-0 h-full bg-gradient-to-r from-brand-500 to-orange-400 rounded-full transition-all duration-[1000ms] ease-out w-0 shadow-[0_0_15px_rgba(249,115,22,0.6)] relative">
+                                    <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent w-full -translate-x-full animate-shimmer"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white/80 dark:bg-dark-card/80 backdrop-blur-xl p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] shadow-card border border-white/40 dark:border-white/5 relative group hover:border-brand-500/20 transition-all duration-500">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+                        <div class="flex items-center gap-4 md:gap-5">
+                            <div class="w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-3xl md:text-4xl text-brand-500 shadow-sm group-hover:scale-105 group-hover:-rotate-6 transition-transform duration-500">
+                                <i class="fa-solid fa-utensils" id="meal-icon"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white tracking-tight" id="meal-title">Loading...</h2>
+                                <p class="text-sm md:text-base text-slate-500 dark:text-slate-400 font-medium mt-1">Current Menu Selection</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2 md:gap-3 mb-8 md:mb-10 min-h-[80px]" id="menu-items">
+                        <span class="animate-pulse bg-slate-100 dark:bg-slate-800 px-4 py-2 rounded-xl text-slate-400 text-sm">Fetching menu data...</span>
+                    </div>
+
+                    <div class="mb-8 md:mb-10 p-5 md:p-6 bg-slate-50/80 dark:bg-black/20 rounded-2xl md:rounded-3xl border border-slate-200/50 dark:border-white/5">
+                        <h4 class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-4 md:mb-5 flex items-center gap-2">
+                            <i class="fa-solid fa-bolt text-yellow-500"></i> AI Nutritional Breakdown
+                        </h4>
+                        <div class="space-y-3 md:space-y-4">
+                            <div class="flex items-center gap-3 md:gap-4">
+                                <span class="w-12 md:w-14 text-[10px] md:text-xs font-bold text-slate-500 uppercase">Protein</span>
+                                <div class="flex-1 h-2 md:h-2.5 bg-white dark:bg-white/5 rounded-full overflow-hidden border border-black/5 dark:border-white/5">
+                                    <div id="macro-protein" class="h-full bg-blue-500 rounded-full w-0 shadow-[0_0_10px_rgba(59,130,246,0.4)] transition-all duration-[1500ms]"></div>
+                                </div>
+                                <span class="w-8 md:w-10 text-[10px] md:text-xs font-bold text-slate-700 dark:text-slate-300 text-right" id="val-protein">0g</span>
+                            </div>
+                            <div class="flex items-center gap-3 md:gap-4">
+                                <span class="w-12 md:w-14 text-[10px] md:text-xs font-bold text-slate-500 uppercase">Carbs</span>
+                                <div class="flex-1 h-2 md:h-2.5 bg-white dark:bg-white/5 rounded-full overflow-hidden border border-black/5 dark:border-white/5">
+                                    <div id="macro-carbs" class="h-full bg-orange-500 rounded-full w-0 shadow-[0_0_10px_rgba(249,115,22,0.4)] transition-all duration-[1500ms]"></div>
+                                </div>
+                                <span class="w-8 md:w-10 text-[10px] md:text-xs font-bold text-slate-700 dark:text-slate-300 text-right" id="val-carbs">0g</span>
+                            </div>
+                            <div class="flex items-center gap-3 md:gap-4">
+                                <span class="w-12 md:w-14 text-[10px] md:text-xs font-bold text-slate-500 uppercase">Fats</span>
+                                <div class="flex-1 h-2 md:h-2.5 bg-white dark:bg-white/5 rounded-full overflow-hidden border border-black/5 dark:border-white/5">
+                                    <div id="macro-fats" class="h-full bg-yellow-500 rounded-full w-0 shadow-[0_0_10px_rgba(234,179,8,0.4)] transition-all duration-[1500ms]"></div>
+                                </div>
+                                <span class="w-8 md:w-10 text-[10px] md:text-xs font-bold text-slate-700 dark:text-slate-300 text-right" id="val-fats">0g</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-6 border-t border-slate-200 dark:border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6">
+                        <div class="flex items-center gap-3 md:gap-4 w-full sm:w-auto">
+                            <span class="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest">Rate</span>
+                            <div class="flex text-slate-300 text-lg md:text-xl gap-1" id="rating-stars"></div>
+                            <span id="rating-text" class="text-[10px] md:text-xs text-brand-500 font-bold opacity-0 transition-opacity duration-300 ml-auto sm:ml-0">Saved!</span>
+                        </div>
+                        
+                        <div class="flex gap-2 w-full sm:w-auto justify-end">
+                             <span id="veg-badge" class="hidden px-3 md:px-4 py-1.5 rounded-full bg-green-500/10 text-green-700 dark:text-green-400 text-[10px] md:text-xs font-bold border border-green-500/20 backdrop-blur-sm">
+                                <i class="fa-solid fa-leaf mr-1.5"></i> Pure Veg
+                            </span>
+                             <span id="nonveg-badge" class="hidden px-3 md:px-4 py-1.5 rounded-full bg-red-500/10 text-red-700 dark:text-red-400 text-[10px] md:text-xs font-bold border border-red-500/20 backdrop-blur-sm">
+                                <i class="fa-solid fa-drumstick-bite mr-1.5"></i> Non-Veg
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-6 animate-fade-in-up" style="animation-delay: 150ms;">
+                
+                <div class="bg-gradient-to-br from-blue-600 to-indigo-600 text-white p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] shadow-glow hover:shadow-xl relative overflow-hidden group transition-all duration-500 hover:-translate-y-1">
+                    <div class="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent pointer-events-none"></div>
+                    <div class="absolute -right-6 -top-6 text-white/10 group-hover:scale-110 transition-transform duration-700"><i class="fa-solid fa-cloud-sun text-8xl md:text-9xl"></i></div>
+                    
+                    <div class="relative z-10">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <p class="text-blue-100/80 text-[10px] font-bold uppercase tracking-widest mb-1"><i class="fa-solid fa-location-arrow mr-1"></i> Chennai, IN</p>
+                                <h3 class="text-5xl md:text-6xl font-bold tracking-tighter" id="weather-temp">--°</h3>
+                            </div>
+                            <i class="fa-solid fa-cloud text-3xl md:text-4xl text-blue-200 animate-pulse-slow drop-shadow-lg" id="weather-icon"></i>
+                        </div>
+                        <p class="text-base md:text-lg font-medium text-blue-50 capitalize mb-6" id="weather-desc">Updating...</p>
+                        
+                        <div class="grid grid-cols-2 gap-3 md:gap-4 border-t border-white/20 pt-4">
+                            <div class="bg-white/10 rounded-xl p-3 backdrop-blur-md">
+                                <p class="text-blue-200 text-[10px] font-bold uppercase">Wind</p>
+                                <p class="font-bold text-sm md:text-base"><span id="weather-wind">--</span> km/h</p>
+                            </div>
+                            <div class="bg-white/10 rounded-xl p-3 backdrop-blur-md">
+                                <p class="text-blue-200 text-[10px] font-bold uppercase">Humidity</p>
+                                <p class="font-bold text-sm md:text-base">High</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white/60 dark:bg-dark-card/60 backdrop-blur-md p-6 rounded-[1.5rem] md:rounded-[2rem] shadow-card border border-white/40 dark:border-white/5 transition-all duration-300 hover:bg-white/80 dark:hover:bg-dark-card/80">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Coming Up Next</p>
+                    <div class="flex items-center gap-4 md:gap-5">
+                        <div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-400 text-xl md:text-2xl border border-slate-200 dark:border-white/5 flex-shrink-0">
+                            <i class="fa-solid fa-clock" id="next-icon"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <h4 class="font-bold text-slate-900 dark:text-white text-base md:text-lg truncate" id="next-title">Loading...</h4>
+                            <p class="text-[10px] md:text-xs text-brand-500 font-bold mt-0.5 mb-1" id="next-time">--:--</p>
+                            <p class="text-[10px] md:text-xs text-slate-500 dark:text-slate-400 line-clamp-1" id="next-menu">Wait...</p>
+                        </div>
+                    </div>
+                </div>
+
+                 <div class="bg-brand-500 p-6 rounded-[1.5rem] md:rounded-[2rem] shadow-glow text-white relative overflow-hidden group">
+                     <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+                     <div class="relative z-10">
+                         <div class="flex justify-between items-center mb-3">
+                             <p class="text-[10px] md:text-xs font-bold text-brand-100 uppercase tracking-widest">Daily Goal</p>
+                             <i class="fa-solid fa-bullseye text-brand-200"></i>
+                         </div>
+                         <div class="flex items-baseline gap-1 mb-4">
+                            <span class="text-2xl md:text-3xl font-bold" id="total-cals">1450</span>
+                            <span class="text-xs md:text-sm text-brand-200 font-medium">/ 2200 kcal</span>
+                         </div>
+                         <div class="w-full bg-black/20 rounded-full h-2 overflow-hidden">
+                            <div class="bg-white h-2 rounded-full transition-all duration-[2000ms] ease-out w-0" style="width: 0%" id="daily-progress"></div>
+                         </div>
+                     </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // --- DATA & CONFIG ---
+        const MESS_TIMINGS = {
+            breakfast: { start: 7.5, end: 9.5, name: "Breakfast" },
+            lunch: { start: 12.5, end: 14.5, name: "Lunch" },
+            snacks: { start: 16.5, end: 17.5, name: "Snacks" },
+            dinner: { start: 19.5, end: 21.0, name: "Dinner" }
+        };
+
+        const menuData = [
+            { day: "Monday", breakfast: "Sweet, Bread, Butter, Jam, Idly, Sambar, Spl Chutney, Poori, Aloo Dal Masala, Boiled Egg, Banana", lunch: "Chappathi, Jeera Pulao, Steamed Rice, Masala Sambar, Bagara Dal, Mix Veg Poriyal, Lemon Rasam, Pickle, Butter Milk", snacks: "Pav Bhaji, Tea / Coffee", dinner: "Punjabi Paratha, Rajma Makkan Wala, Dosa, Idly Podi, Special Chutney, Steamed Rice, Veg Salad. ***Chicken Gravy***" },
+            { day: "Tuesday", breakfast: "Bread, Butter, Jam, Ghee Pongal, Vadai, Veg Kosthu, Coconut Chutney, Poha, Mint Chutney, Masala Omelet", lunch: "Sweet, Poori, Mattar Ghugni, Variety Rice, Steamed Rice, Sambar, Dal Lasooni, Gobi-65 / Bhindi Jaipuri, Butter Milk", snacks: "Boiled Peanut / Black Channa Sundal", dinner: "Chappathi, Mix Veg Kurma, Fried Rice/Noodles, Manchurian Dry, Steamed Rice, Rasam, Dal Fry, Veg Salad, Fruits. ***Chicken Gravy***" },
+            { day: "Wednesday", breakfast: "Bread, Butter, Jam, Dosa, Idly Podi, Arachivitta Sambar, Chappathi, Aloo Rajma Masala, Banana", lunch: "Butter Roti, Aloo Palak, Peas Pulao, Dal Makhni, Kadai Veg, Steamed Rice, Drumstick Brinjal Sambar, Garlic Rasam, Butter Milk", snacks: "Veg Puff / Sweet Bun, Juice", dinner: "Chappathi, Steamed Rice, Dal Tadka, ***Chicken Masala*** / Panneer Butter Masala, Rasam, Pickle, Veg Salad. ***Chicken Gravy***" },
+            { day: "Thursday", breakfast: "Bread, Butter, Jam, Idly, Sambar, Aloo Meal Maker Kasa, Veg Semiya Kichadi, Coconut Chutney, Boiled Egg", lunch: "Luchi, Kashmiri Dum Aloo, Onion Pulao, Steamed Rice, Mysore Dal Fry, Kadi Pakoda, Pepper Rasam, Poriyal, Butter Milk", snacks: "Pani Poori (or) Chunda Nasta", dinner: "Ghee Pulao, Chappathi, Muttar Panneer, Steamed Rice, Dal Tadka, Aloo Peanut Masala, Veg Salad, Ice Cream. ***Mutton Gravy***" },
+            { day: "Friday", breakfast: "Bread, Butter, Jam, Podi Dosa, Idly Podi, Chilli Sambar, Chappathi, Muttar Masala, Boiled Egg, Banana", lunch: "Dry Jamun / Bread Halwa, Veg Briyani, Mix Raitha, Bisebelabath, Curd Rice, Steamed Rice, Aloo Gobi Adaraki", snacks: "Bonda / Vada, Chutney", dinner: "Chole Bhatura, Steamed Rice, Tomato Dal, Samba Rava Upma, Coconut Chutney, Rasam, Cabbage Poriyal, Veg Salad. ***Chicken Gravy***" },
+            { day: "Saturday", breakfast: "Bread, Butter, Jam, Chappathi, Veg Kurma, Idiyappam, Coconut Chutney, Boiled Egg", lunch: "Poori, Dal Aloo Masala, Veg Pulao, Steamed Rice, Punjabi Dal Tadka, Bhindi Do Pyasa, Kara Kuzhambu, Jeera Rasam", snacks: "Cake (or) Brownie", dinner: "Sweet, Malabar Paratha, Meal Maker Curry, Mix Veg Sabji, Steamed Rice, Dal Makhni, Idly, Tiffen Sambar, Veg Salad. ***Fish Gravy***" },
+            { day: "Sunday", breakfast: "Bread, Butter, Jam, Chole Poori, Veg Upma, Coconut Chutney", lunch: "Chappathi, ***Chicken (Pepper/Kadai)***, Panneer Butter Masala, Dal Dhadka, Mint Pulao, Steamed Rice, Garlic Rasam, Butter Milk", snacks: "Corn / Bajji, Chutney", dinner: "Variety Stuffing Paratha, Curd, Steamed Rice, Hara Moong Dal Tadka, Sambar, Poriyal, Ice Cream. ***Chicken Gravy***" }
+        ];
+
+        let currentMealKey = ''; 
+        let currentDayName = '';
+
+        // --- THEME ---
+        const themeToggle = document.getElementById('theme-toggle');
+        const html = document.documentElement;
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            html.classList.add('dark');
+        }
+        themeToggle.addEventListener('click', () => {
+            html.classList.toggle('dark');
+            localStorage.theme = html.classList.contains('dark') ? 'dark' : 'light';
+        });
+
+        // --- WEATHER ---
+        async function fetchWeather() {
+            try {
+                const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=13.0827&longitude=80.2707&current_weather=true');
+                const data = await res.json();
+                const temp = Math.round(data.current_weather.temperature);
+                const wind = data.current_weather.windspeed;
+                const code = data.current_weather.weathercode;
+
+                document.getElementById('weather-temp').innerText = `${temp}°`;
+                document.getElementById('weather-wind').innerText = wind;
+
+                let desc = "Clear Sky";
+                let icon = "fa-sun";
+                if(code > 0 && code < 3) { desc = "Partly Cloudy"; icon = "fa-cloud-sun"; }
+                else if(code >= 3 && code < 50) { desc = "Overcast"; icon = "fa-cloud"; }
+                else if(code >= 50 && code < 80) { desc = "Rainy"; icon = "fa-cloud-rain"; }
+                else if(code >= 80) { desc = "Thunderstorm"; icon = "fa-bolt"; }
+
+                document.getElementById('weather-desc').innerText = desc;
+                document.getElementById('weather-icon').className = `fa-solid ${icon} text-4xl text-blue-200 animate-pulse-slow drop-shadow-lg`;
+            } catch (e) { console.error(e); document.getElementById('weather-desc').innerText = "Offline"; }
+        }
+
+        // --- RATINGS ---
+        function rateMeal(stars) {
+            const key = `rating_${currentDayName}_${currentMealKey}`;
+            localStorage.setItem(key, stars);
+            updateStarsUI(stars);
+            const textEl = document.getElementById('rating-text');
+            textEl.style.opacity = '1';
+            setTimeout(() => { textEl.style.opacity = '0'; }, 2000);
+        }
+
+        function updateStarsUI(count) {
+            const container = document.getElementById('rating-stars');
+            container.innerHTML = '';
+            for(let i=1; i<=5; i++) {
+                const btn = document.createElement('button');
+                btn.onclick = () => rateMeal(i);
+                btn.className = "focus:outline-none transition-transform hover:scale-125";
+                btn.innerHTML = i <= count 
+                    ? '<i class="fa-solid fa-star text-yellow-400 drop-shadow-sm"></i>' 
+                    : '<i class="fa-solid fa-star text-slate-200 dark:text-slate-700"></i>';
+                container.appendChild(btn);
+            }
+        }
+
+        function loadSavedRating() {
+            const key = `rating_${currentDayName}_${currentMealKey}`;
+            const saved = localStorage.getItem(key);
+            updateStarsUI(saved ? parseInt(saved) : 0);
+        }
+
+        // --- UPDATE LOOP ---
+        function updateDisplay() {
+            const now = new Date();
+            const currentHourDec = now.getHours() + now.getMinutes() / 60;
+            let dayIndex = now.getDay() === 0 ? 6 : now.getDay() - 1; 
+            const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+            currentDayName = days[dayIndex];
+
+            // Greeting
+            const h = now.getHours();
+            let greeting = "Good Morning";
+            if(h >= 12 && h < 17) greeting = "Good Afternoon";
+            else if(h >= 17) greeting = "Good Evening";
+            document.getElementById('greeting-text').innerText = `${greeting}, Student`;
+
+            // Clock
+            const timeString = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+            const [timePart, ampmPart] = timeString.split(' ');
+            document.getElementById('clock-display').innerText = timePart;
+            document.getElementById('ampm-display').innerText = ampmPart;
+            document.getElementById('date-display').innerText = now.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+
+            // Logic
+            let activeMealObj = MESS_TIMINGS.breakfast;
+            let activeMealKey = 'breakfast';
+            let nextMealKey = 'lunch';
+            let isServing = false;
+
+            if (currentHourDec < MESS_TIMINGS.breakfast.end) {
+                activeMealObj = MESS_TIMINGS.breakfast; activeMealKey = 'breakfast'; nextMealKey = 'lunch';
+            } else if (currentHourDec < MESS_TIMINGS.lunch.end) {
+                activeMealObj = MESS_TIMINGS.lunch; activeMealKey = 'lunch'; nextMealKey = 'snacks';
+            } else if (currentHourDec < MESS_TIMINGS.snacks.end) {
+                activeMealObj = MESS_TIMINGS.snacks; activeMealKey = 'snacks'; nextMealKey = 'dinner';
+            } else if (currentHourDec < MESS_TIMINGS.dinner.end) {
+                activeMealObj = MESS_TIMINGS.dinner; activeMealKey = 'dinner'; nextMealKey = 'breakfast';
+            } else {
+                // Late night case
+                activeMealObj = MESS_TIMINGS.breakfast; activeMealKey = 'breakfast'; nextMealKey = 'lunch';
+                dayIndex = (dayIndex + 1) % 7; currentDayName = days[dayIndex];
+            }
+
+            if(currentMealKey !== activeMealKey) { currentMealKey = activeMealKey; loadSavedRating(); }
+            if(currentHourDec >= activeMealObj.start && currentHourDec < activeMealObj.end) isServing = true;
+
+            // Progress Bar Logic
+            const formatTime = (dec) => {
+                const h = Math.floor(dec);
+                const m = (dec % 1) * 60;
+                const ampm = h >= 12 ? 'PM' : 'AM';
+                const showH = h > 12 ? h - 12 : h;
+                return `${showH}:${m === 0 ? '00' : m} ${ampm}`;
+            };
+
+            document.getElementById('start-time-label').innerText = formatTime(activeMealObj.start);
+            document.getElementById('end-time-label').innerText = formatTime(activeMealObj.end);
+            
+            const timeProgress = document.getElementById('time-progress');
+            const statusBadge = document.getElementById('status-badge');
+
+            if (isServing) {
+                statusBadge.innerText = "Live Now";
+                const total = activeMealObj.end - activeMealObj.start;
+                const elapsed = currentHourDec - activeMealObj.start;
+                const pct = Math.min(100, Math.max(0, (elapsed / total) * 100));
+                timeProgress.style.width = `${pct}%`;
+                timeProgress.className = "absolute top-0 left-0 h-full bg-gradient-to-r from-brand-500 to-orange-400 rounded-full transition-all duration-[1000ms] ease-out shadow-[0_0_15px_rgba(249,115,22,0.6)] relative";
+            } else {
+                statusBadge.innerText = "Up Next";
+                timeProgress.style.width = "0%";
+                // Remove glow when inactive
+                timeProgress.className = "absolute top-0 left-0 h-full bg-slate-300 dark:bg-slate-600 rounded-full transition-all duration-500 relative";
+            }
+
+            // Menu Data
+            const data = menuData[dayIndex];
+            const foodString = data[activeMealKey];
+            const icons = { breakfast: 'fa-mug-hot', lunch: 'fa-bowl-rice', snacks: 'fa-cookie-bite', dinner: 'fa-moon' };
+            
+            document.getElementById('meal-title').innerText = activeMealObj.name;
+            document.getElementById('meal-icon').className = `fa-solid ${icons[activeMealKey]}`;
+
+            // Macros
+            let p = 10, c = 20, f = 10;
+            const lf = foodString.toLowerCase();
+            if(lf.includes('chicken')||lf.includes('egg')||lf.includes('dal')) p += 40;
+            if(lf.includes('rice')||lf.includes('roti')||lf.includes('aloo')) c += 50;
+            if(lf.includes('butter')||lf.includes('fry')) f += 30;
+
+            document.getElementById('macro-protein').style.width = `${p}%`; document.getElementById('val-protein').innerText = `${Math.floor(p*0.6)}g`;
+            document.getElementById('macro-carbs').style.width = `${c}%`; document.getElementById('val-carbs').innerText = `${Math.floor(c*1.2)}g`;
+            document.getElementById('macro-fats').style.width = `${f}%`; document.getElementById('val-fats').innerText = `${Math.floor(f*0.4)}g`;
+            
+            // Intake Bar
+            setTimeout(() => { document.getElementById('daily-progress').style.width = '65%'; }, 500);
+
+            // Badges & Chips
+            const isNonVeg = foodString.includes('***') || foodString.includes('Chicken');
+            document.getElementById('nonveg-badge').classList.toggle('hidden', !isNonVeg);
+            document.getElementById('veg-badge').classList.toggle('hidden', isNonVeg);
+
+            const itemsContainer = document.getElementById('menu-items');
+            itemsContainer.innerHTML = '';
+            foodString.split(',').forEach(item => {
+                let text = item.trim(); if(!text) return;
+                let chip = document.createElement('div');
+                chip.className = "px-3 md:px-4 py-2 md:py-2.5 rounded-xl md:rounded-2xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-xs md:text-sm font-semibold text-slate-600 dark:text-slate-300 shadow-sm cursor-default hover:-translate-y-0.5 transition-transform";
+                
+                if (text.includes('Chicken') || text.includes('Fish')) {
+                    chip.className = "px-3 md:px-4 py-2 md:py-2.5 rounded-xl md:rounded-2xl bg-red-500/10 border border-red-500/20 text-xs md:text-sm font-bold text-red-600 dark:text-red-400 shadow-sm";
+                    text = text.replace(/\*\*\*/g, '');
+                    chip.innerHTML = `<i class="fa-solid fa-drumstick-bite mr-2 text-xs opacity-70"></i>${text}`;
+                } else if (text.includes('Paneer') || text.includes('Mushroom')) {
+                    chip.className = "px-3 md:px-4 py-2 md:py-2.5 rounded-xl md:rounded-2xl bg-green-500/10 border border-green-500/20 text-xs md:text-sm font-bold text-green-600 dark:text-green-400 shadow-sm";
+                    chip.innerHTML = `<i class="fa-solid fa-leaf mr-2 text-xs opacity-70"></i>${text}`;
+                } else if (text.includes('Sweet') || text.includes('Ice Cream')) {
+                    chip.className = "px-3 md:px-4 py-2 md:py-2.5 rounded-xl md:rounded-2xl bg-orange-500/10 border border-orange-500/20 text-xs md:text-sm font-bold text-orange-600 dark:text-orange-400 shadow-sm";
+                    chip.innerHTML = `<i class="fa-solid fa-star mr-2 text-xs opacity-70"></i>${text}`;
+                } else { chip.innerText = text; }
+                itemsContainer.appendChild(chip);
+            });
+
+            // Up Next
+            let nextData = data;
+            if(nextMealKey === 'breakfast' && activeMealKey === 'dinner') nextData = menuData[(dayIndex + 1) % 7];
+            document.getElementById('next-title').innerText = nextMealKey.charAt(0).toUpperCase() + nextMealKey.slice(1);
+            document.getElementById('next-menu').innerText = nextData[nextMealKey].replace(/\*\*\*/g, '').substring(0, 40) + "...";
+            document.getElementById('next-icon').className = `fa-solid ${icons[nextMealKey]}`;
+            document.getElementById('next-time').innerText = `Starts ${formatTime(MESS_TIMINGS[nextMealKey].start)}`;
+        }
+
+        // Init
+        fetchWeather();
+        setInterval(fetchWeather, 600000);
+        setInterval(updateDisplay, 1000);
+        updateDisplay();
+    </script>
+</body>
+</html>

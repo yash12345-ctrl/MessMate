@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SRM Dining & Maps | MessMate</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
+                    colors: {
+                        brand: { 500: '#0054a6', 600: '#004282' },
+                        dark: { bg: '#0f172a', card: '#1e293b', text: '#f8fafc' }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.4s ease-out forwards',
+                        'zoom-in': 'zoomIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        zoomIn: {
+                            '0%': { opacity: '0', transform: 'scale(0.95)' },
+                            '100%': { opacity: '1', transform: 'scale(1)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        #map-modal { transition: opacity 0.3s ease; }
+        #map-modal.hidden { opacity: 0; pointer-events: none; }
+        #map-modal:not(.hidden) { opacity: 1; pointer-events: auto; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-dark-bg dark:text-dark-text transition-colors duration-300 min-h-screen flex flex-col">
+
+    <div id="map-modal" class="fixed inset-0 z-[60] flex items-center justify-center p-4 hidden">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onclick="closeMap()"></div>
+        <div class="bg-white dark:bg-dark-card w-full max-w-4xl h-[80vh] rounded-3xl shadow-2xl relative z-10 flex flex-col overflow-hidden animate-zoom-in">
+            <div class="p-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-white dark:bg-dark-card">
+                <div>
+                    <h3 class="font-bold text-lg text-slate-900 dark:text-white" id="map-title">Location Map</h3>
+                    <p class="text-xs text-slate-500" id="map-subtitle">SRM IST Kattankulathur</p>
+                </div>
+                <button onclick="closeMap()" class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-red-50 hover:text-red-500 transition flex items-center justify-center">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div class="flex-1 bg-slate-100 relative">
+                <iframe id="map-frame" class="w-full h-full border-0" loading="lazy" allowfullscreen></iframe>
+                <div class="absolute inset-0 flex items-center justify-center pointer-events-none text-slate-400">
+                    <i class="fa-solid fa-map-location-dot text-4xl animate-bounce"></i>
+                </div>
+            </div>
+            <div class="p-3 bg-brand-50 dark:bg-slate-800 text-center text-xs text-brand-600 dark:text-brand-400 font-bold uppercase tracking-wider">
+                Live Directions
+            </div>
+        </div>
+    </div>
+
+    <nav class="fixed w-full z-40 bg-white/90 dark:bg-dark-card/90 backdrop-blur-xl border-b border-slate-200 dark:border-slate-700 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+            <a href="srm-dashboard.html" class="flex items-center gap-3 group">
+                <div class="w-9 h-9 bg-brand-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-brand-500/20 group-hover:scale-105 transition-transform">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </div>
+                <span class="font-bold text-lg tracking-tight">Dashboard</span>
+            </a>
+            <div class="flex items-center gap-4">
+                <button id="theme-toggle" class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-yellow-400 transition hover:bg-slate-200">
+                    <i class="fa-solid fa-sun dark:hidden"></i>
+                    <i class="fa-solid fa-moon hidden dark:block"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <header class="pt-28 pb-8 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-end gap-6 mb-8">
+                <div>
+                    <h1 class="text-3xl md:text-5xl font-extrabold text-slate-900 dark:text-white mb-2 tracking-tight">Campus <span class="text-brand-600">Dining</span></h1>
+                    <p class="text-slate-500 dark:text-slate-400 font-medium">Explore food spots across SRM Kattankulathur.</p>
+                </div>
+
+                <div class="flex gap-2 overflow-x-auto no-scrollbar w-full md:w-auto">
+                    <button class="filter-btn active bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-5 py-2.5 rounded-full text-sm font-bold shadow-lg transition-all" data-filter="all">All</button>
+                    <button class="filter-btn bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-5 py-2.5 rounded-full text-sm font-bold text-slate-600 dark:text-slate-300 hover:border-brand-500 transition-all" data-filter="open">Open Now</button>
+                    <button class="filter-btn bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-5 py-2.5 rounded-full text-sm font-bold text-slate-600 dark:text-slate-300 hover:border-brand-500 transition-all" data-filter="budget">Budget</button>
+                    <button class="filter-btn bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-5 py-2.5 rounded-full text-sm font-bold text-slate-600 dark:text-slate-300 hover:border-brand-500 transition-all" data-filter="ac">AC</button>
+                </div>
+            </div>
+
+            <div class="relative max-w-2xl">
+                <input type="text" id="search-input" placeholder="Search for 'Java', 'Biryani', 'Medical'..."
+                       class="w-full pl-12 pr-4 py-4 rounded-2xl bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 focus:border-brand-500 focus:ring-0 shadow-lg shadow-slate-200/50 dark:shadow-none text-lg transition-all outline-none">
+                <i class="fa-solid fa-search absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 text-xl"></i>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow px-4 pb-24">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8" id="canteen-grid">
+            </div>
+
+        <div id="no-results" class="hidden flex-col items-center justify-center py-20 text-center">
+            <div class="w-20 h-20 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400 text-3xl">
+                <i class="fa-solid fa-store-slash"></i>
+            </div>
+            <h3 class="font-bold text-xl text-slate-900 dark:text-white">No canteens found</h3>
+            <p class="text-slate-500 mt-2">Try adjusting your filters.</p>
+        </div>
+    </main>
+
+    <script>
+        // Theme Toggle Logic
+        const themeToggle = document.getElementById('theme-toggle');
+        const html = document.documentElement;
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) html.classList.add('dark');
+        themeToggle.addEventListener('click', () => {
+            html.classList.toggle('dark');
+            localStorage.theme = html.classList.contains('dark') ? 'dark' : 'light';
+        });
+
+        // ----------------------------------------------------
+        // DATA: Canteens with corrected "image/" paths
+        // ----------------------------------------------------
+        const canteens = [
+            {
+                name: "Java Green",
+                loc: "Near Clock Tower",
+                mapQuery: "Java Green SRM University",
+                tags: ["Shawarma", "Subway", "Juice"],
+                type: ["budget"],
+                image: "image/java.png",
+                color: "bg-green-100 text-green-700",
+                open: 7.5, close: 20.0,
+                dist: 300,
+                trending: "Chicken Shawarma"
+            },
+            {
+                name: "Tech Park Canteen",
+                loc: "Tech Park (Ground Floor)",
+                mapQuery: "Tech Park SRM University",
+                tags: ["Meals", "Biryani", "Fried Rice"],
+                type: ["budget", "high-capacity"],
+                image: "image/techpark.png",
+                color: "bg-blue-100 text-blue-700",
+                open: 7.0, close: 17.0,
+                dist: 0,
+                trending: "Veg Meals"
+            },
+            {
+                name: "Slice of Life Café",
+                loc: "Adj. Medical College",
+                mapQuery: "Slice of Life Cafe SRM",
+                tags: ["Burgers", "Tandoori", "Premium"],
+                type: ["ac", "premium"],
+                image: "image/slice.png",
+                color: "bg-pink-100 text-pink-700",
+                open: 7.5, close: 20.0,
+                dist: 850,
+                trending: "Hot Chocolate"
+            },
+            {
+                name: "University Building Canteen",
+                loc: "UB (Ground, 5th, 8th)",
+                mapQuery: "University Building SRM",
+                tags: ["South Indian", "Coffee"],
+                type: ["budget"],
+                image: "image/ub.png",
+                color: "bg-orange-100 text-orange-700",
+                open: 7.0, close: 17.0,
+                dist: 400,
+                trending: "Ghee Roast"
+            },
+            {
+                name: "Madras Café",
+                loc: "SRM Hospital (1st Floor)",
+                mapQuery: "SRM General Hospital",
+                tags: ["North Indian", "Hygienic"],
+                type: ["24x7", "ac"],
+                image: "image/hospital.jpg",
+                color: "bg-yellow-100 text-yellow-700",
+                open: 0, close: 24,
+                dist: 900,
+                trending: "Paneer Butter Masala"
+            },
+            {
+                name: "SRMIST Food Joint",
+                loc: "Main Entrance (Gate 4)",
+                mapQuery: "SRM Main Campus Gate 4",
+                tags: ["Fast Food", "Super Market"],
+                type: ["fast-food"],
+                image: "image/gate4.jpg",
+                color: "bg-purple-100 text-purple-700",
+                open: 7.0, close: 17.0,
+                dist: 1200,
+                trending: "Samosa & Puffs"
+            },
+            {
+                name: "The Royal Café",
+                loc: "Near VEC / Opp Pharmacy",
+                mapQuery: "SRM College of Pharmacy",
+                tags: ["Snacks", "Tea"],
+                type: ["budget"],
+                image: "image/royal.png",
+                color: "bg-cyan-100 text-cyan-700",
+                open: 7.5, close: 16.5,
+                dist: 600,
+                trending: "Egg Puff"
+            },
+            {
+                name: "Dental Canteen",
+                loc: "Behind Dental College",
+                mapQuery: "SRM Dental College",
+                tags: ["Variety Rice", "Budget"],
+                type: ["budget"],
+                image: "image/dental.jpg",
+                color: "bg-teal-100 text-teal-700",
+                open: 7.5, close: 16.5,
+                dist: 1500,
+                trending: "Curd Rice"
+            },
+            {
+                name: "Medical College Canteen",
+                loc: "Medical College (4th Floor)",
+                mapQuery: "SRM Medical College",
+                tags: ["MBBS Exclusive", "Meals"],
+                type: ["restricted"],
+                image: "image/medical.jpg",
+                color: "bg-red-100 text-red-700",
+                open: 7.5, close: 20.5,
+                dist: 850,
+                trending: "Full Meals"
+            }
+        ];
+
+        // Map Modal Logic
+        const mapModal = document.getElementById('map-modal');
+        const mapFrame = document.getElementById('map-frame');
+        const mapTitle = document.getElementById('map-title');
+        const mapSubtitle = document.getElementById('map-subtitle');
+
+        function openMap(name, location, query) {
+            mapTitle.innerText = name;
+            mapSubtitle.innerText = location;
+            // Note: In a real deployment, you need a Google Maps API Key.
+            const mapUrl = `https://maps.google.com/maps?q=${encodeURIComponent(query + ", Kattankulathur")}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+            mapFrame.src = mapUrl;
+            mapModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMap() {
+            mapModal.classList.add('hidden');
+            mapFrame.src = '';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Render Logic
+        const grid = document.getElementById('canteen-grid');
+        const searchInput = document.getElementById('search-input');
+        const noResults = document.getElementById('no-results');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        let currentFilter = 'all';
+
+        function render(filterType = 'all', text = '') {
+            grid.innerHTML = '';
+            const now = new Date();
+            const hour = now.getHours() + now.getMinutes()/60;
+
+            const filtered = canteens.filter(c => {
+                const matchText = c.name.toLowerCase().includes(text.toLowerCase()) ||
+                                  c.loc.toLowerCase().includes(text.toLowerCase()) ||
+                                  c.tags.some(t => t.toLowerCase().includes(text.toLowerCase()));
+
+                let matchFilter = true;
+                if(filterType === 'open') {
+                    if(c.close !== 24 && (hour < c.open || hour >= c.close)) matchFilter = false;
+                } else if(filterType !== 'all') {
+                    matchFilter = c.type.includes(filterType);
+                }
+                return matchText && matchFilter;
+            });
+
+            if(filtered.length === 0) noResults.classList.replace('hidden', 'flex');
+            else noResults.classList.replace('flex', 'hidden');
+
+            filtered.sort((a,b) => a.dist - b.dist);
+
+            filtered.forEach((c, i) => {
+                let isOpen = false;
+                if(c.close === 24) isOpen = true;
+                else if(hour >= c.open && hour < c.close) isOpen = true;
+
+                const walkTime = Math.ceil(c.dist / 80);
+                const distText = c.dist === 0 ? "You are here" : `${walkTime} min walk`;
+
+                const statusHTML = isOpen
+                    ? `<span class="inline-flex items-center gap-1 bg-green-500/90 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-lg shadow-sm"><span class="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></span>OPEN</span>`
+                    : `<span class="inline-flex items-center gap-1 bg-slate-900/80 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-lg">CLOSED</span>`;
+
+                const card = document.createElement('div');
+                card.className = `bg-white dark:bg-dark-card rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 group animate-fade-in overflow-hidden flex flex-col`;
+                card.style.animationDelay = `${i * 50}ms`;
+
+                card.innerHTML = `
+                    <div class="h-48 relative overflow-hidden ${c.color} flex items-center justify-center">
+                        <img src="${c.image}"
+                             alt="${c.name}"
+                             loading="lazy"
+                             class="w-full h-full object-cover absolute inset-0 z-0 group-hover:scale-110 transition-transform duration-700"
+                             onerror="this.style.display='none'; this.parentElement.classList.remove('bg-slate-100');"
+                        >
+
+                        <div class="z-0 opacity-50 flex flex-col items-center">
+                            <i class="fa-solid fa-camera text-4xl mb-2"></i>
+                            <span class="text-xs font-bold uppercase tracking-widest">No Image</span>
+                        </div>
+
+                        <div class="absolute top-3 left-3 z-20 pointer-events-none">
+                            <span class="bg-black/40 backdrop-blur-sm border border-white/20 text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">
+                                SRM Campus
+                            </span>
+                        </div>
+
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent pointer-events-none z-10"></div>
+
+                        <div class="absolute top-3 right-3 z-20">
+                            ${statusHTML}
+                        </div>
+                    </div>
+
+                    <div class="p-5 flex-1 flex flex-col">
+                        <div class="mb-3">
+                            <h3 class="text-xl font-bold text-slate-900 dark:text-white leading-tight mb-1">${c.name}</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1">
+                                <i class="fa-solid fa-map-pin text-brand-500"></i> ${c.loc}
+                            </p>
+                        </div>
+
+                        <div class="space-y-2 mb-4">
+                            <div class="flex items-center justify-between text-sm py-1 border-b border-slate-100 dark:border-slate-700/50">
+                                <span class="text-slate-500 dark:text-slate-400">Distance</span>
+                                <span class="font-semibold text-slate-700 dark:text-slate-200 text-xs bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded-md">
+                                    <i class="fa-solid fa-person-walking mr-1"></i>${distText}
+                                </span>
+                            </div>
+                            <div class="flex items-center justify-between text-sm py-1">
+                                <span class="text-slate-500 dark:text-slate-400">Trending</span>
+                                <span class="font-semibold text-brand-600 dark:text-brand-400 flex items-center gap-1">
+                                    <i class="fa-solid fa-fire text-orange-500 animate-pulse"></i> ${c.trending}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-wrap gap-2 mb-4 mt-auto">
+                            ${c.tags.slice(0,3).map(t => `<span class="text-[10px] font-bold uppercase px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">${t}</span>`).join('')}
+                        </div>
+
+                        <button onclick="openMap('${c.name}', '${c.loc}', '${c.mapQuery}')"
+                            class="w-full py-3 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-95 shadow-lg shadow-slate-200 dark:shadow-none">
+                            <span>Navigate</span>
+                            <i class="fa-solid fa-location-arrow"></i>
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Event Listeners for Filters
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => {
+                    b.classList.remove('bg-slate-900', 'text-white', 'dark:bg-white', 'dark:text-slate-900');
+                    b.classList.add('bg-white', 'dark:bg-slate-800', 'text-slate-600', 'dark:text-slate-300');
+                });
+                btn.classList.remove('bg-white', 'dark:bg-slate-800', 'text-slate-600', 'dark:text-slate-300');
+                btn.classList.add('bg-slate-900', 'text-white', 'dark:bg-white', 'dark:text-slate-900');
+                currentFilter = btn.dataset.filter;
+                render(currentFilter, searchInput.value);
+            });
+        });
+
+        searchInput.addEventListener('input', (e) => {
+            render(currentFilter, e.target.value);
+        });
+
+        render();
+    </script>
+</body>
+</html>
