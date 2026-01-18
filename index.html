@@ -106,7 +106,7 @@
             -webkit-mask-image: radial-gradient(ellipse at center, black 40%, transparent 70%);
         }
 
-        /* 3D Perspective for Hero - Tuned for responsiveness */
+        /* 3D Perspective for Hero */
         .perspective-container { perspective: 1200px; }
         .rotate-3d { transform: rotateX(15deg) rotateY(0deg) rotateZ(0deg) scale(0.95); transition: transform 0.7s ease-out; }
         .rotate-3d:hover { transform: rotateX(5deg) scale(1); }
@@ -562,6 +562,10 @@
         const installBtn = document.getElementById('install-btn');
         const mobileInstallBtn = document.getElementById('mobile-install-btn');
 
+        // *** FIX: Attach click event listeners ***
+        installBtn.addEventListener('click', installApp);
+        mobileInstallBtn.addEventListener('click', installApp);
+
         // Listen for the 'beforeinstallprompt' event
         window.addEventListener('beforeinstallprompt', (e) => {
             // Prevent the mini-infobar from appearing on mobile
@@ -571,6 +575,7 @@
             // Update UI notify the user they can install the PWA
             installBtn.classList.remove('hidden');
             mobileInstallBtn.classList.remove('hidden');
+            console.log('PWA Install Triggered'); // Debug log
         });
 
         // Function to trigger installation
@@ -580,6 +585,7 @@
                 deferredPrompt.prompt();
                 // Wait for the user to respond to the prompt
                 const { outcome } = await deferredPrompt.userChoice;
+                console.log(`User response to the install prompt: ${outcome}`);
                 // We've used the prompt, and can't use it again, discard it
                 deferredPrompt = null;
                 // Hide button after install action
