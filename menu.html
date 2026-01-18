@@ -5,29 +5,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MessMate Pro | Ultimate Dining Dashboard</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
 
     <script>
         tailwind.config = {
-            darkMode: 'class', // Enables toggle
+            darkMode: 'class',
             theme: {
                 extend: {
                     fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
                     colors: {
                         brand: {
-                            500: '#FF5E00', // Primary Orange
+                            400: '#FB923C',
+                            500: '#F97316',
                             600: '#EA580C',
+                            900: '#7C2D12',
                         },
                         dark: {
-                            bg: '#0F172A',
-                            card: '#1E293B',
-                            text: '#F1F5F9'
+                            bg: '#020617',     /* Slate 950 */
+                            card: '#0F172A',   /* Slate 900 */
+                            border: '#1E293B', /* Slate 800 */
                         }
                     },
+                    backgroundImage: {
+                        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+                    },
                     animation: {
-                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'blob': 'blob 7s infinite',
+                        'fade-in': 'fadeIn 0.5s ease-out forwards',
+                        'spin-slow': 'spin 3s linear infinite',
+                    },
+                    keyframes: {
+                        blob: {
+                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                            '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+                            '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+                            '100%': { transform: 'translate(0px, 0px) scale(1)' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
                     }
                 }
             }
@@ -35,113 +54,231 @@
     </script>
 
     <style>
-        /* Hide Scrollbar */
+        /* Custom Utilities */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* Glassmorphism */
-        .glass {
+        /* Professional Glass Nav Style */
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+        }
+        
+        .dark .glass-nav {
+            background: rgba(2, 6, 23, 0.85);
+            border-bottom: 1px solid rgba(30, 41, 59, 0.8);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .glass-panel {
             background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(226, 232, 240, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
         }
-        .dark .glass {
-            background: rgba(15, 23, 42, 0.7);
-            border-bottom: 1px solid rgba(51, 65, 85, 0.6);
+        
+        .dark .glass-panel {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
+
+        /* Animated Background Blobs */
+        .bg-blob {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            overflow: hidden;
+            background-color: #f8fafc;
+        }
+        .dark .bg-blob {
+            background-color: #020617;
+        }
+        .blob-1 { top: -10%; left: -10%; width: 500px; height: 500px; background: rgba(249, 115, 22, 0.15); border-radius: 50%; filter: blur(80px); animation-delay: 0s; }
+        .blob-2 { bottom: -10%; right: -10%; width: 500px; height: 500px; background: rgba(59, 130, 246, 0.1); border-radius: 50%; filter: blur(80px); animation-delay: 2s; }
+        .blob-3 { top: 40%; left: 40%; width: 400px; height: 400px; background: rgba(168, 85, 247, 0.1); border-radius: 50%; filter: blur(80px); animation-delay: 4s; }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 dark:bg-dark-bg dark:text-dark-text transition-colors duration-300">
+<body class="text-slate-800 dark:text-slate-200 antialiased selection:bg-brand-500 selection:text-white transition-colors duration-500">
 
-    <nav class="fixed w-full z-50 glass transition-all duration-300">
-        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-2">
-                <div class="w-9 h-9 bg-brand-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-brand-500/30">
-                    <i class="fa-solid fa-utensils"></i>
+    <div class="bg-blob">
+        <div class="absolute animate-blob blob-1"></div>
+        <div class="absolute animate-blob blob-2"></div>
+        <div class="absolute animate-blob blob-3"></div>
+    </div>
+
+    <nav class="fixed top-0 w-full z-50 glass-nav transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+            
+            <div class="flex items-center gap-3 cursor-pointer">
+                <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-brand-500 to-orange-600 flex items-center justify-center text-white shadow-lg shadow-brand-500/20">
+                    <i class="fa-solid fa-utensils text-sm"></i>
                 </div>
-                <span class="font-bold text-lg tracking-tight">Mess<span class="text-brand-500">Mate</span> <span class="text-xs bg-slate-200 dark:bg-slate-700 px-1.5 py-0.5 rounded text-slate-500 dark:text-slate-300">PRO</span></span>
+                <div class="flex flex-col">
+                    <h1 class="font-bold text-lg tracking-tight text-slate-900 dark:text-white leading-none">Mess<span class="text-brand-500">Mate</span></h1>
+                    <span class="text-[9px] font-bold text-slate-400 tracking-[0.2em] uppercase">Pro</span>
+                </div>
             </div>
 
             <div class="flex items-center gap-4">
-                <button id="theme-toggle" class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-yellow-400 transition hover:scale-105">
-                    <i class="fa-solid fa-sun dark:hidden"></i>
-                    <i class="fa-solid fa-moon hidden dark:block"></i>
+                
+                <div class="hidden md:flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/50 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-700">
+                    <i class="fa-regular fa-calendar"></i>
+                    <span id="nav-date"></span>
+                </div>
+
+                <div class="h-6 w-px bg-slate-200 dark:bg-slate-700 hidden md:block"></div>
+
+                <button id="theme-toggle" class="w-9 h-9 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-amber-400 transition-colors">
+                    <i class="fa-solid fa-sun text-xs dark:hidden"></i>
+                    <i class="fa-solid fa-moon text-xs hidden dark:block"></i>
                 </button>
                 
-                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-brand-500 to-yellow-500 p-[2px] cursor-pointer">
-                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Yash" class="rounded-full bg-white" alt="Profile">
+                <div class="flex items-center gap-3 pl-2">
+                    <div class="text-right hidden sm:block">
+                        <p class="text-sm font-bold text-slate-900 dark:text-white leading-none">Student</p>
+                        <p class="text-[10px] font-semibold text-slate-500 uppercase mt-1"></p>
+                    </div>
+                    <div class="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300">
+                        <i class="fa-regular fa-user text-sm"></i>
+                    </div>
                 </div>
             </div>
         </div>
     </nav>
 
-    <header class="pt-24 pb-8 px-4">
-        <div class="max-w-7xl mx-auto">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+    <main class="pt-24 pb-24 px-4 sm:px-6">
+        <div class="max-w-7xl mx-auto space-y-8">
+            
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <div>
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-600 dark:text-slate-400 mb-3 backdrop-blur-md shadow-sm">
+                        <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                        Live Dashboard
+                    </div>
+                    <h1 class="text-3xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
+                        What's cooking in <br class="hidden md:block">
+                        <span id="current-mess-name" class="text-transparent bg-clip-text bg-gradient-to-r from-brand-500 to-orange-400">Boys Hostel</span>?
+                    </h1>
+                </div>
+
+                <div class="p-1.5 bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-2xl flex relative w-full md:w-auto overflow-hidden shadow-lg shadow-slate-200/50 dark:shadow-none">
+                    
+                    <button onclick="window.location.href='menu.html'" class="relative z-10 flex-1 px-6 py-3 text-sm font-bold rounded-xl transition-all duration-300 text-center hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200">
+                        Boys
+                    </button>
+                    
+                    <button onclick="window.location.href='girlhostel.html'" class="relative z-10 flex-1 px-6 py-3 text-sm font-bold rounded-xl transition-all duration-300 text-center hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border-l border-slate-100 dark:border-slate-800">
+                        Girls
+                    </button>
+                    
+                    <button onclick="window.location.href='girlsmenu.html'" class="relative z-10 flex-1 px-6 py-3 text-sm font-bold rounded-xl transition-all duration-300 text-center hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border-l border-slate-100 dark:border-slate-800">
+                        M-Block
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-5 h-auto md:h-48">
                 
-                <div class="bg-white dark:bg-dark-card p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 relative overflow-hidden">
-                    <div class="absolute top-0 right-0 p-3 opacity-10"><i class="fa-solid fa-clock text-6xl"></i></div>
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Current Status</p>
-                    <h2 class="text-2xl font-bold text-brand-500 flex items-center gap-2">
-                        <span id="status-text">Loading...</span>
-                        <span class="relative flex h-3 w-3">
-                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-500 opacity-75"></span>
-                          <span class="relative inline-flex rounded-full h-3 w-3 bg-brand-500"></span>
-                        </span>
-                    </h2>
-                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1" id="timer-display">Ends in 00:00:00</p>
+                <div class="md:col-span-5 relative group overflow-hidden rounded-[2rem] bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border shadow-xl shadow-slate-200/50 dark:shadow-none p-7 flex flex-col justify-between transition-transform hover:scale-[1.01]">
+                    <div class="absolute top-0 right-0 p-6 opacity-5 dark:opacity-10 transition-transform group-hover:scale-110 duration-700 group-hover:rotate-12">
+                        <i class="fa-solid fa-clock text-9xl"></i>
+                    </div>
+                    <div class="relative z-10">
+                        <p class="text-xs font-bold text-brand-500 uppercase tracking-widest mb-2 flex items-center gap-2">
+                            <i class="fa-regular fa-circle-dot animate-pulse"></i> Current Status
+                        </p>
+                        <h2 id="status-text" class="text-4xl font-black text-slate-900 dark:text-white mt-1 leading-none">Loading...</h2>
+                    </div>
+                    <div class="relative z-10 pt-4 border-t border-slate-100 dark:border-slate-800 mt-4">
+                        <div class="flex items-center gap-3 text-slate-500 dark:text-slate-400 font-medium">
+                            <i class="fa-solid fa-stopwatch text-lg"></i>
+                            <span id="timer-display" class="font-mono text-lg tracking-tight">--:--:--</span>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="bg-white dark:bg-dark-card p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
-                    <div class="flex justify-between items-start">
+                <div class="md:col-span-4 rounded-[2rem] bg-gradient-to-br from-slate-900 to-slate-800 text-white p-7 border border-slate-700 shadow-2xl flex flex-col justify-between relative overflow-hidden group">
+                    <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
+                    <div class="relative z-10 flex justify-between items-start">
                         <div>
-                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">AI Crowd Monitor</p>
-                            <h2 class="text-xl font-bold text-slate-800 dark:text-white" id="crowd-status">Loading...</h2>
-                            <p class="text-xs text-slate-500 font-semibold mt-1 flex items-center gap-1">
-                                <i class="fa-solid fa-rss"></i> Live Estimate
-                            </p>
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Crowd Index</p>
+                            <h2 id="crowd-status" class="text-2xl font-bold mt-1">Calculating...</h2>
                         </div>
-                        <div class="bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 p-2 rounded-lg text-xl">
-                            <i class="fa-solid fa-robot"></i>
-                        </div>
+                        <i class="fa-solid fa-users-viewfinder text-2xl text-slate-600 group-hover:text-white transition-colors"></i>
                     </div>
-                    <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-1.5 mt-3 overflow-hidden">
-                        <div id="crowd-bar" class="bg-blue-500 h-1.5 rounded-full transition-all duration-700 ease-out" style="width: 0%"></div>
+                    
+                    <div class="relative z-10 mt-4">
+                        <div class="flex justify-between text-xs font-medium text-slate-400 mb-2">
+                            <span>Empty</span>
+                            <span>Full</span>
+                        </div>
+                        <div class="w-full h-3 bg-slate-700/50 rounded-full overflow-hidden backdrop-blur-sm border border-white/10">
+                            <div id="crowd-bar" class="h-full rounded-full bg-gradient-to-r from-green-400 via-yellow-400 to-red-500 transition-all duration-1000 ease-out relative" style="width: 0%">
+                                <div class="absolute right-0 top-0 h-full w-2 bg-white blur-[2px] opacity-70"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="bg-white dark:bg-dark-card p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col justify-center gap-2">
-                    <button onclick="toggleVegMode()" id="veg-toggle-btn" class="w-full py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 font-semibold text-sm hover:bg-green-50 dark:hover:bg-green-900/20 hover:text-green-600 hover:border-green-200 transition flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-leaf"></i> Show Veg Only
+                <div class="md:col-span-3 grid grid-rows-2 gap-4">
+                    <button onclick="toggleVegMode()" id="veg-toggle-btn" class="group relative overflow-hidden rounded-[1.5rem] bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/50 p-5 text-left transition-all hover:shadow-lg hover:border-green-400 dark:hover:border-green-600">
+                        <div class="absolute right-4 top-4 w-8 h-8 rounded-full bg-white/80 dark:bg-green-900/50 flex items-center justify-center text-green-600 transition-colors group-hover:bg-green-500 group-hover:text-white">
+                            <i class="fa-solid fa-leaf"></i>
+                        </div>
+                        <div class="relative z-10 mt-2">
+                            <h3 class="font-bold text-slate-800 dark:text-green-100">Pure Veg</h3>
+                            <p class="text-[10px] font-semibold text-green-600 dark:text-green-400 uppercase tracking-wider mt-1">Tap to Toggle</p>
+                        </div>
                     </button>
-                    <button onclick="shareMenu()" class="w-full py-2.5 rounded-xl bg-green-500 text-white font-semibold text-sm hover:bg-green-600 transition flex items-center justify-center gap-2 shadow-lg shadow-green-500/20">
-                        <i class="fa-brands fa-whatsapp text-lg"></i> Share on WhatsApp
+
+                    <button onclick="shareMenu()" class="group relative overflow-hidden rounded-[1.5rem] bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border p-5 text-left transition-all hover:border-brand-500 dark:hover:border-brand-500 hover:shadow-md">
+                        <div class="absolute right-4 top-4 w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 transition-colors group-hover:bg-brand-500 group-hover:text-white">
+                            <i class="fa-brands fa-whatsapp"></i>
+                        </div>
+                        <div class="relative z-10 mt-2">
+                            <h3 class="font-bold text-slate-800 dark:text-white">Share Menu</h3>
+                            <p class="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-1">Send to Friends</p>
+                        </div>
                     </button>
                 </div>
             </div>
-        </div>
-    </header>
 
-    <main class="max-w-7xl mx-auto px-4 pb-24">
-        <div class="sticky top-16 z-40 bg-slate-50/95 dark:bg-[#0F172A]/95 backdrop-blur py-2 mb-6">
-            <div class="flex overflow-x-auto gap-3 no-scrollbar pb-2" id="day-tabs">
+            <div class="sticky top-20 z-40 bg-white/80 dark:bg-dark-bg/80 backdrop-blur-xl border-y border-slate-200 dark:border-slate-800 py-3 -mx-4 px-4 sm:mx-0 sm:px-0 sm:rounded-2xl sm:border shadow-sm">
+                <div class="flex overflow-x-auto gap-2 no-scrollbar px-2" id="day-tabs">
                 </div>
-        </div>
-
-        <div id="menu-container" class="space-y-6">
             </div>
+
+            <div id="menu-container" class="grid grid-cols-1 gap-6">
+            </div>
+        </div>
     </main>
+
+    <footer class="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-dark-card py-12 mt-12">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex items-center gap-2 text-slate-400 font-bold text-lg opacity-60 hover:opacity-100 transition-opacity">
+                <i class="fa-solid fa-utensils"></i> MessMate
+            </div>
+            <p class="text-slate-500 text-sm">Designed with <i class="fa-solid fa-heart text-red-500 animate-pulse"></i> for Hostelers</p>
+        </div>
+    </footer>
 
     <script>
         // --- 1. CONFIGURATION & DATA ---
+        
         const MESS_TIMINGS = {
-            breakfast: { start: 7.5, end: 9.5, name: "Breakfast" }, // 7:30 - 9:30
-            lunch: { start: 12.5, end: 14.5, name: "Lunch" },      // 12:30 - 14:30
-            snacks: { start: 16.5, end: 17.5, name: "Snacks" },    // 16:30 - 17:30
-            dinner: { start: 19.5, end: 21.0, name: "Dinner" }     // 19:30 - 21:00
+            breakfast: { start: 7.5, end: 9.5, name: "Breakfast" },
+            lunch: { start: 12.5, end: 14.5, name: "Lunch" },
+            snacks: { start: 16.5, end: 17.5, name: "Snacks" },
+            dinner: { start: 19.5, end: 21.0, name: "Dinner" }
         };
 
-        const menuData = [
+        const boysMenu = [
             { day: "Monday", veg: true, breakfast: "Sweet, Bread, Butter, Jam, Idly, Sambar, Spl Chutney, Poori, Aloo Dal Masala, Boiled Egg, Banana", lunch: "Chappathi, Jeera Pulao, Steamed Rice, Masala Sambar, Bagara Dal, Mix Veg Poriyal, Lemon Rasam, Pickle, Butter Milk", snacks: "Pav Bhaji, Tea / Coffee", dinner: "Punjabi Paratha, Rajma Makkan Wala, Dosa, Idly Podi, Special Chutney, Steamed Rice, Veg Salad. ***Chicken Gravy***" },
             { day: "Tuesday", veg: true, breakfast: "Bread, Butter, Jam, Ghee Pongal, Vadai, Veg Kosthu, Coconut Chutney, Poha, Mint Chutney, Masala Omelet", lunch: "Sweet, Poori, Mattar Ghugni, Variety Rice, Steamed Rice, Sambar, Dal Lasooni, Gobi-65 / Bhindi Jaipuri, Butter Milk", snacks: "Boiled Peanut / Black Channa Sundal", dinner: "Chappathi, Mix Veg Kurma, Fried Rice/Noodles, Manchurian Dry, Steamed Rice, Rasam, Dal Fry, Veg Salad, Fruits. ***Chicken Gravy***" },
             { day: "Wednesday", veg: false, breakfast: "Bread, Butter, Jam, Dosa, Idly Podi, Arachivitta Sambar, Chappathi, Aloo Rajma Masala, Banana", lunch: "Butter Roti, Aloo Palak, Peas Pulao, Dal Makhni, Kadai Veg, Steamed Rice, Drumstick Brinjal Sambar, Garlic Rasam, Butter Milk", snacks: "Veg Puff / Sweet Bun, Juice", dinner: "Chappathi, Steamed Rice, Dal Tadka, ***Chicken Masala*** / Panneer Butter Masala, Rasam, Pickle, Veg Salad. ***Chicken Gravy***" },
@@ -151,10 +288,11 @@
             { day: "Sunday", veg: false, breakfast: "Bread, Butter, Jam, Chole Poori, Veg Upma, Coconut Chutney", lunch: "Chappathi, ***Chicken (Pepper/Kadai)***, Panneer Butter Masala, Dal Dhadka, Mint Pulao, Steamed Rice, Garlic Rasam, Butter Milk", snacks: "Corn / Bajji, Chutney", dinner: "Variety Stuffing Paratha, Curd, Steamed Rice, Hara Moong Dal Tadka, Sambar, Poriyal, Ice Cream. ***Chicken Gravy***" }
         ];
 
-        // State Variables
         let currentDayIndex = new Date().getDay() === 0 ? 6 : new Date().getDay() - 1;
         let isVegMode = false;
         let favorites = JSON.parse(localStorage.getItem('messFavorites')) || [];
+        let activeMenuData = boysMenu; 
+        let currentMessType = 'boys';
 
         // --- 2. THEME LOGIC ---
         const themeToggle = document.getElementById('theme-toggle');
@@ -169,22 +307,27 @@
             localStorage.theme = html.classList.contains('dark') ? 'dark' : 'light';
         });
 
+        // Set Date
+        const dateOptions = { weekday: 'short', month: 'short', day: 'numeric' };
+        document.getElementById('nav-date').innerText = new Date().toLocaleDateString('en-US', dateOptions);
+
         // --- 3. RENDER FUNCTIONS ---
+        
         function renderTabs() {
             const container = document.getElementById('day-tabs');
             container.innerHTML = '';
             
-            menuData.forEach((item, index) => {
+            activeMenuData.forEach((item, index) => {
                 const isActive = index === currentDayIndex;
                 const btn = document.createElement('button');
-                btn.className = `flex-shrink-0 px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-300 border relative ${
+                btn.className = `flex-shrink-0 px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 relative group overflow-hidden ${
                     isActive 
-                    ? 'bg-slate-900 dark:bg-brand-500 text-white border-transparent shadow-lg transform scale-105' 
-                    : 'bg-white dark:bg-dark-card text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-brand-500'
+                    ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/40 ring-2 ring-brand-500 ring-offset-2 ring-offset-white dark:ring-offset-dark-bg' 
+                    : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'
                 }`;
                 btn.innerHTML = `
-                    ${item.day.substring(0,3)}
-                    ${item.dinner.includes('***') ? '<span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full border border-white dark:border-dark-card"></span>' : ''}
+                    <span class="relative z-10">${item.day.substring(0,3)}</span>
+                    ${item.dinner.includes('***') ? '<span class="absolute top-2 right-2 w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></span>' : ''}
                 `;
                 btn.onclick = () => {
                     currentDayIndex = index;
@@ -198,83 +341,108 @@
 
         function renderContent() {
             const container = document.getElementById('menu-container');
-            const data = menuData[currentDayIndex];
+            const data = activeMenuData[currentDayIndex];
             
             const meals = [
-                { id: 'bf', title: 'Breakfast', icon: 'mug-hot', color: 'text-yellow-500', time: '7:30 - 9:30 AM', items: data.breakfast },
-                { id: 'ln', title: 'Lunch', icon: 'bowl-rice', color: 'text-orange-500', time: '12:30 - 2:30 PM', items: data.lunch },
-                { id: 'sn', title: 'Snacks', icon: 'cookie-bite', color: 'text-pink-500', time: '4:30 - 5:30 PM', items: data.snacks },
-                { id: 'dn', title: 'Dinner', icon: 'moon', color: 'text-indigo-500', time: '7:30 - 9:00 PM', items: data.dinner },
+                { id: 'bf', title: 'Breakfast', icon: 'mug-hot', color: 'text-amber-500', bg: 'bg-amber-500', time: '7:30 - 9:30 AM', items: data.breakfast },
+                { id: 'ln', title: 'Lunch', icon: 'bowl-rice', color: 'text-orange-500', bg: 'bg-orange-500', time: '12:30 - 2:30 PM', items: data.lunch },
+                { id: 'sn', title: 'Snacks', icon: 'cookie-bite', color: 'text-pink-500', bg: 'bg-pink-500', time: '4:30 - 5:30 PM', items: data.snacks },
+                { id: 'dn', title: 'Dinner', icon: 'cloud-moon', color: 'text-indigo-500', bg: 'bg-indigo-500', time: '7:30 - 9:00 PM', items: data.dinner },
             ];
 
-            container.innerHTML = meals.map(meal => {
+            container.innerHTML = meals.map((meal, idx) => {
                 let formattedItems = formatFoodText(meal.items);
-                if (isVegMode && (meal.items.includes('Chicken') || meal.items.includes('Fish'))) {
-                    formattedItems = `<span class="opacity-40 italic">Non-veg hidden</span> ` + formattedItems.replace(/Chicken|Fish|Mutton|Egg/gi, '🚫');
+                if (isVegMode && (meal.items.includes('Chicken') || meal.items.includes('Fish') || meal.items.includes('Mutton') || meal.items.includes('Egg') || meal.items.includes('Omelette'))) {
+                    formattedItems = `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-400 border border-slate-200 dark:border-slate-700 mb-2"> <i class="fa-solid fa-ban"></i> Non-veg hidden</span><br>` + formattedItems.replace(/Chicken|Fish|Mutton|Egg|Omelette/gi, '<span class="opacity-20 decoration-line-through">Restricted</span>');
                 }
+                const uniqueId = meal.id + currentDayIndex + currentMessType; 
+
+                // Animation delay stagger
+                const delay = idx * 100;
 
                 return `
-                <div class="bg-white dark:bg-dark-card p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 transition-all hover:shadow-md group">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center ${meal.color}">
-                                <i class="fa-solid fa-${meal.icon} text-lg"></i>
+                <div class="group relative bg-white dark:bg-dark-card rounded-3xl p-1 shadow-sm border border-slate-200 dark:border-dark-border hover:border-brand-300 dark:hover:border-brand-700 transition-all duration-300 animate-fade-in" style="animation-delay: ${delay}ms; animation-fill-mode: both;">
+                    <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-3xl"></div>
+                    
+                    <div class="flex flex-col md:flex-row h-full">
+                        <div class="md:w-24 bg-slate-50 dark:bg-slate-800/50 rounded-t-3xl md:rounded-l-3xl md:rounded-tr-none flex md:flex-col items-center justify-between p-4 border-b md:border-b-0 md:border-r border-slate-100 dark:border-slate-800">
+                            <div class="w-10 h-10 rounded-2xl ${meal.color} bg-white dark:bg-slate-800 shadow-sm flex items-center justify-center text-lg">
+                                <i class="fa-solid fa-${meal.icon}"></i>
                             </div>
-                            <div>
-                                <h3 class="font-bold text-lg text-slate-800 dark:text-slate-100">${meal.title}</h3>
-                                <p class="text-xs text-slate-400 font-medium">${meal.time}</p>
-                            </div>
+                            <div class="hidden md:block h-full w-px bg-slate-200 dark:bg-slate-700 my-4 border-dashed border-l"></div>
+                             <button onclick="toggleHeart('${uniqueId}')" class="w-8 h-8 rounded-full flex items-center justify-center transition hover:bg-red-50 dark:hover:bg-red-900/20">
+                                <i class="${favorites.includes(uniqueId) ? 'fa-solid text-red-500 scale-110' : 'fa-regular text-slate-300 hover:text-red-500'} fa-heart text-lg transition-transform duration-200 active:scale-90"></i>
+                            </button>
                         </div>
-                        <button onclick="toggleHeart('${meal.id}')" class="text-slate-300 hover:text-red-500 transition">
-                            <i class="${favorites.includes(meal.id + currentDayIndex) ? 'fa-solid text-red-500' : 'fa-regular'} fa-heart text-xl"></i>
-                        </button>
+
+                        <div class="flex-1 p-6">
+                            <div class="flex justify-between items-start mb-3">
+                                <div>
+                                    <h3 class="font-bold text-xl text-slate-800 dark:text-slate-100 group-hover:text-brand-500 transition-colors">${meal.title}</h3>
+                                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wide mt-1"><i class="fa-regular fa-clock mr-1"></i> ${meal.time}</p>
+                                </div>
+                            </div>
+                            <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed font-medium">
+                                ${formattedItems}
+                            </p>
+                        </div>
                     </div>
-                    <p class="text-slate-600 dark:text-slate-400 text-sm leading-7">${formattedItems}</p>
                 </div>
                 `;
             }).join('');
         }
 
-        // --- 4. UTILITIES ---
+        // --- 5. UTILITIES ---
         function formatFoodText(text) {
             return text
-                .replace(/\*\*\*(.*?)\*\*\*/g, '<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 mx-1 uppercase tracking-wide"><i class="fa-solid fa-fire mr-1"></i>$1</span>')
-                .replace(/(Chicken|Mutton|Fish)/gi, '<span class="font-bold text-red-500 dark:text-red-400">$1</span>')
+                .replace(/\*\*\*(.*?)\*\*\*/g, '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-bold bg-gradient-to-r from-red-500 to-orange-500 text-white shadow-lg shadow-orange-500/30 mx-1 uppercase tracking-wider transform hover:scale-105 transition-transform cursor-default"><i class="fa-solid fa-fire"></i> $1</span>')
+                .replace(/(Chicken|Mutton|Fish)/gi, '<span class="font-bold text-red-500 dark:text-red-400 border-b border-red-200 dark:border-red-900/50 border-dashed">$1</span>')
                 .replace(/(Paneer|Panneer|Mushroom)/gi, '<span class="font-bold text-green-600 dark:text-green-400">$1</span>')
-                .replace(/(Ice Cream|Sweet|Gulab Jamun|Halwa|Cake)/gi, '<span class="font-bold text-pink-500 decoration-wavy underline decoration-pink-300">$1</span>');
+                .replace(/(Ice Cream|Sweet|Gulab Jamun|Halwa|Cake|Brownie|Payasam)/gi, '<span class="font-bold text-pink-500">$1 <i class="fa-solid fa-star text-[10px] ml-0.5 animate-spin-slow"></i></span>');
         }
 
         function toggleVegMode() {
             isVegMode = !isVegMode;
             const btn = document.getElementById('veg-toggle-btn');
+            const icon = btn.querySelector('i');
+            const title = btn.querySelector('h3');
+            const sub = btn.querySelector('p');
+            const iconContainer = btn.querySelector('div div');
+
             if(isVegMode) {
-                btn.classList.add('bg-green-50', 'text-green-600', 'border-green-200');
-                btn.innerHTML = '<i class="fa-solid fa-leaf"></i> Veg Mode ON';
+                btn.classList.add('ring-2', 'ring-green-500', 'bg-green-100', 'dark:bg-green-900/30');
+                iconContainer.classList.add('bg-green-500', 'text-white');
+                title.classList.add('text-green-700', 'dark:text-green-300');
+                title.innerText = "Veg Mode ON";
+                sub.innerText = "Showing Veg Only";
             } else {
-                btn.classList.remove('bg-green-50', 'text-green-600', 'border-green-200');
-                btn.innerHTML = '<i class="fa-solid fa-leaf"></i> Show Veg Only';
+                btn.classList.remove('ring-2', 'ring-green-500', 'bg-green-100', 'dark:bg-green-900/30');
+                iconContainer.classList.remove('bg-green-500', 'text-white');
+                title.classList.remove('text-green-700', 'dark:text-green-300');
+                title.innerText = "Pure Veg";
+                sub.innerText = "Tap to Toggle";
             }
             renderContent();
         }
 
-        function toggleHeart(mealId) {
-            const key = mealId + currentDayIndex;
-            if (favorites.includes(key)) {
-                favorites = favorites.filter(k => k !== key);
+        function toggleHeart(uniqueId) {
+            if (favorites.includes(uniqueId)) {
+                favorites = favorites.filter(k => k !== uniqueId);
             } else {
-                favorites.push(key);
+                favorites.push(uniqueId);
             }
             localStorage.setItem('messFavorites', JSON.stringify(favorites));
             renderContent();
         }
 
         function shareMenu() {
-            const data = menuData[currentDayIndex];
-            const text = `🍽️ *Mess Menu for ${data.day}* 🍽️%0A%0A🥞 *Breakfast:* ${data.breakfast}%0A🍛 *Lunch:* ${data.lunch}%0A☕ *Snacks:* ${data.snacks}%0A🥘 *Dinner:* ${data.dinner}%0A%0A🚀 *Check full menu on MessMate*`;
+            const data = activeMenuData[currentDayIndex];
+            const messName = currentMessType === 'mblock' ? 'M Block' : currentMessType.charAt(0).toUpperCase() + currentMessType.slice(1);
+            const text = `🍽️ *${messName} Menu for ${data.day}* 🍽️%0A%0A🥞 *Breakfast:* ${data.breakfast}%0A🍛 *Lunch:* ${data.lunch}%0A☕ *Snacks:* ${data.snacks}%0A🥘 *Dinner:* ${data.dinner}%0A%0A🚀 *Check full menu on MessMate*`;
             window.open(`https://wa.me/?text=${text}`, '_blank');
         }
 
-        // --- 5. UPDATED STATUS & CROWD LOGIC ---
+        // --- 6. STATUS & CROWD LOGIC ---
         function updateStatus() {
             const now = new Date();
             const hours = now.getHours() + now.getMinutes() / 60; 
@@ -282,7 +450,7 @@
             const statusText = document.getElementById('status-text');
             const timerDisplay = document.getElementById('timer-display');
             const crowdStatus = document.getElementById('crowd-status');
-            const crowdBar = document.getElementById('crowd-bar'); // Selected by ID now
+            const crowdBar = document.getElementById('crowd-bar');
 
             let activeMeal = null;
 
@@ -292,8 +460,9 @@
             else if (hours >= MESS_TIMINGS.dinner.start && hours < MESS_TIMINGS.dinner.end) activeMeal = MESS_TIMINGS.dinner;
 
             if (activeMeal) {
-                statusText.innerText = `${activeMeal.name} Live`;
-                statusText.classList.replace('text-slate-500', 'text-brand-500');
+                statusText.innerText = `${activeMeal.name} is Live`;
+                statusText.classList.remove('text-slate-500');
+                statusText.classList.add('text-brand-500');
                 
                 const endTime = new Date();
                 endTime.setHours(Math.floor(activeMeal.end), (activeMeal.end % 1) * 60, 0);
@@ -302,45 +471,39 @@
                 const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
                 timerDisplay.innerText = `Closes in ${h}h ${m}m`;
                 
-                // --- FIXED CROWD SIMULATION ---
-                // Random traffic between 35% and 95%
                 const traffic = Math.floor(Math.random() * (95 - 35) + 35);
-                
                 crowdBar.style.width = `${traffic}%`;
                 
                 if (traffic > 80) {
-                    crowdStatus.innerText = "High Traffic";
-                    crowdStatus.className = "text-xl font-bold text-red-500";
-                    crowdBar.className = "bg-red-500 h-1.5 rounded-full transition-all duration-700 ease-out";
+                    crowdStatus.innerText = "Heavy Crowd";
+                    crowdStatus.className = "text-2xl font-bold mt-1 text-red-400";
                 } else if (traffic > 55) {
-                    crowdStatus.innerText = "Moderate Traffic";
-                    crowdStatus.className = "text-xl font-bold text-orange-500";
-                    crowdBar.className = "bg-orange-500 h-1.5 rounded-full transition-all duration-700 ease-out";
+                    crowdStatus.innerText = "Moderate";
+                    crowdStatus.className = "text-2xl font-bold mt-1 text-yellow-400";
                 } else {
                     crowdStatus.innerText = "Low Traffic";
-                    crowdStatus.className = "text-xl font-bold text-green-500";
-                    crowdBar.className = "bg-green-500 h-1.5 rounded-full transition-all duration-700 ease-out";
+                    crowdStatus.className = "text-2xl font-bold mt-1 text-green-400";
                 }
 
             } else {
                 statusText.innerText = "Mess Closed";
-                statusText.classList.replace('text-brand-500', 'text-slate-500');
+                statusText.classList.remove('text-brand-500');
+                statusText.classList.add('text-slate-500');
                 
-                let nextOpenText = "Opens next for Breakfast";
-                if (hours < MESS_TIMINGS.lunch.start && hours > MESS_TIMINGS.breakfast.end) nextOpenText = "Opens next for Lunch";
-                else if (hours < MESS_TIMINGS.snacks.start && hours > MESS_TIMINGS.lunch.end) nextOpenText = "Opens next for Snacks";
-                else if (hours < MESS_TIMINGS.dinner.start && hours > MESS_TIMINGS.snacks.end) nextOpenText = "Opens next for Dinner";
+                let nextOpenText = "Breakfast @ 7:30 AM";
+                if (hours < MESS_TIMINGS.lunch.start && hours > MESS_TIMINGS.breakfast.end) nextOpenText = "Lunch @ 12:30 PM";
+                else if (hours < MESS_TIMINGS.snacks.start && hours > MESS_TIMINGS.lunch.end) nextOpenText = "Snacks @ 4:30 PM";
+                else if (hours < MESS_TIMINGS.dinner.start && hours > MESS_TIMINGS.snacks.end) nextOpenText = "Dinner @ 7:30 PM";
                 
                 timerDisplay.innerText = nextOpenText;
                 
-                // Set Crowd to Empty
-                crowdStatus.innerText = "Empty";
-                crowdStatus.className = "text-xl font-bold text-slate-800 dark:text-white";
+                crowdStatus.innerText = "Empty Hall";
+                crowdStatus.className = "text-2xl font-bold mt-1 text-slate-500";
                 crowdBar.style.width = "0%";
-                crowdBar.className = "bg-blue-500 h-1.5 rounded-full transition-all duration-700 ease-out";
             }
         }
 
+        // Initialize (Default rendering)
         renderTabs();
         renderContent();
         setInterval(updateStatus, 60000); 
